@@ -15,9 +15,12 @@ import {
   TableHeaderCell,
 } from '@/shared/ui';
 import { useProducts, useProductUnits, useCreateProductUnit } from '../hooks/useInventory';
+import { StockAdjustmentModal } from '../components/StockAdjustmentModal';
+import { EditPricingModal } from '../components/EditPricingModal';
+import { AddProductModal } from '../components/AddProductModal';
 import { formatCurrency } from '@/shared/lib/format';
 import { getErrorMessage } from '@/shared/lib/errors';
-import { Plus, AlertCircle } from 'lucide-react';
+import { Plus, Sliders, Tag, AlertCircle } from 'lucide-react';
 
 export function InventoryPage() {
   const { store } = useOutletContext();
@@ -26,6 +29,9 @@ export function InventoryPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
   const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [productToAdjust, setProductToAdjust] = useState(null);
+  const [productToEditPrice, setProductToEditPrice] = useState(null);
 
   // New Unit Form State
   const [newSerial, setNewSerial] = useState('');
@@ -110,9 +116,17 @@ export function InventoryPage() {
             {store?.name} Inventory
           </h1>
           <p className="text-sm text-muted">
-            Manage catalog, serialized units (IMEI/Serial), and stock levels.
+            Manage catalog, serialized units (IMEI/Serial), pricing, and live stock adjustments.
           </p>
         </div>
+        <Button
+          variant="solid"
+          size="sm"
+          onClick={() => setIsAddProductOpen(true)}
+          className="text-xs gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          <Plus size={14} /> Add Product to Catalog
+        </Button>
       </div>
 
       {/* Filters Bar */}
@@ -196,30 +210,52 @@ export function InventoryPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    {prod.is_serialized && (
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedProduct(prod);
-                            setIsUnitModalOpen(true);
-                          }}
-                        >
-                          View Units
-                        </Button>
-                        <Button
-                          variant="solid"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedProduct(prod);
-                            setIsAddUnitOpen(true);
-                          }}
-                        >
-                          <Plus size={14} /> Add Unit
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setProductToAdjust(prod)}
+                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                        title="Adjust physical stock quantity"
+                      >
+                        <Sliders size={12} /> Stock
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setProductToEditPrice(prod)}
+                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                        title="Edit price & GST"
+                      >
+                        <Tag size={12} /> Price
+                      </Button>
+                      {prod.is_serialized && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(prod);
+                              setIsUnitModalOpen(true);
+                            }}
+                            className="text-xs py-1 px-2.5 cursor-pointer"
+                          >
+                            Units
+                          </Button>
+                          <Button
+                            variant="solid"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(prod);
+                              setIsAddUnitOpen(true);
+                            }}
+                            className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                          >
+                            <Plus size={12} /> Unit
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );
@@ -389,6 +425,33 @@ export function InventoryPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Stock Adjustment Modal */}
+      {productToAdjust && (
+        <StockAdjustmentModal
+          product={productToAdjust}
+          storeId={store?.id}
+          isOpen={Boolean(productToAdjust)}
+          onClose={() => setProductToAdjust(null)}
+        />
+      )}
+
+      {/* Edit Pricing Modal */}
+      {productToEditPrice && (
+        <EditPricingModal
+          product={productToEditPrice}
+          isOpen={Boolean(productToEditPrice)}
+          onClose={() => setProductToEditPrice(null)}
+        />
+      )}
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        storeId={store?.id}
+        isOpen={isAddProductOpen}
+        onClose={() => setIsAddProductOpen(false)}
+      />
     </div>
   );
 }
+

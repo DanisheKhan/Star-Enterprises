@@ -39,26 +39,26 @@ export function WorkspaceLayout() {
   return (
     <div>
       {/* Store Navigation Subheader */}
-      <div className="border-b border-border bg-surface no-print">
-        <Container size="xl" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3">
-          <div className="flex items-center gap-3">
+      <div className="border-b border-border bg-surface no-print overflow-hidden">
+        <Container size="xl" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               to="/admin"
-              className="p-2 rounded-full border border-border text-muted hover:text-text hover:bg-bg transition-colors"
+              className="p-1.5 sm:p-2 rounded-full border border-border text-muted hover:text-text hover:bg-bg transition-colors shrink-0"
               title="Back to Launcher"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={15} />
             </Link>
-            <div>
-              <h2 className="text-base font-semibold text-text">{store.name}</h2>
-              <p className="text-[11px] text-muted">
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-semibold text-text truncate">{store.name}</h2>
+              <p className="text-[10px] sm:text-[11px] text-muted truncate">
                 GSTIN: {store.gstin} • Prefix: {store.invoice_prefix}
               </p>
             </div>
           </div>
 
           {/* Workspace Tabs */}
-          <nav className="flex items-center gap-2 overflow-x-auto min-w-0">
+          <nav className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 w-full sm:w-auto pb-1 sm:pb-0">
             <Link
               to={basePath}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${

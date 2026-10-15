@@ -3,6 +3,9 @@ import {
   listProductsByStore,
   listProductUnits,
   createProductUnit,
+  createProduct,
+  adjustInventoryStock,
+  updateProductPricing,
 } from '../api/inventory.api';
 
 export const inventoryKeys = {
@@ -36,3 +39,34 @@ export function useCreateProductUnit() {
     },
   });
 }
+
+export function useAdjustStock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adjustInventoryStock,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+    },
+  });
+}
+
+export function useUpdatePricing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateProductPricing,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+    },
+  });
+}
+
+export function useCreateProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+    },
+  });
+}
+

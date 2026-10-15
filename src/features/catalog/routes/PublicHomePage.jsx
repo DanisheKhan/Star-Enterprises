@@ -1,120 +1,350 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Container, Card, Badge, Button, Input } from '@/shared/ui';
-import { Smartphone, Tv, ArrowRight, ShieldCheck, MapPin, Phone, MessageSquare, Search } from 'lucide-react';
+import { Seo } from '@/shared/seo';
+import { usePublicProducts, useCart } from '../hooks/useCatalog';
+import { ProductDetailModal } from '../components/ProductDetailModal';
+import { formatCurrency } from '@/shared/lib/format';
+import {
+  Smartphone,
+  Tv,
+  Search,
+  ShoppingBag,
+  Eye,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Check,
+  Layers,
+  ArrowRight,
+} from 'lucide-react';
 
 export function PublicHomePage() {
-  const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const [selectedStore, setSelectedStore] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [activeModalProduct, setActiveModalProduct] = useState(null);
+  const [recentlyAddedId, setRecentlyAddedId] = useState(null);
+
+  const { addToCart } = useCart();
+  const { data: products = [], isLoading } = usePublicProducts({
+    storeCode: selectedStore,
+    categorySlug: selectedCategory,
+    search,
+  });
+
+  // Unique categories derived from current products
+  const availableCategories = useMemo(() => {
+    const map = new Map();
+    products.forEach((p) => {
+      if (p.categories?.slug && p.categories?.name) {
+        map.set(p.categories.slug, p.categories.name);
+      }
+    });
+    return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
+  }, [products]);
+
+  function handleAddToCart(e, product) {
+    e.stopPropagation();
+    addToCart(product, 1);
+    setRecentlyAddedId(product.id);
+    setTimeout(() => setRecentlyAddedId(null), 1800);
+  }
 
   return (
-    <div className="space-y-16 py-8 sm:py-12 min-w-0">
+    <div className="space-y-12 sm:space-y-16 py-8 sm:py-12 min-w-0">
+      <Seo
+        title="Star Enterprises — Mobiles, Electronics & Modern Furniture"
+        description="Browse certified smartphones, home electronics, and premium furniture with official warranty and GST invoicing across our two Mumbai branches."
+        path="/"
+      />
+
       {/* Hero Section */}
       <Container size="xl" className="text-center space-y-4">
-        <Badge variant="accent">Welcome to Star Enterprises</Badge>
-        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight text-text max-w-3xl mx-auto">
-          Your Trusted Destination for Mobiles, Electronics & Modern Furniture
+        <Badge variant="accent" className="px-3.5 py-1 text-xs">
+          Two Specialized Stores • One Enterprise Destination
+        </Badge>
+        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight text-text max-w-3xl mx-auto leading-tight">
+          Genuine Mobiles, Smart Electronics & Premium Furniture
         </h1>
-        <p className="text-base sm:text-lg text-muted max-w-2xl mx-auto">
-          Browse certified smartphones, home electronics, and premium furniture across our two specialized stores. Guaranteed genuine products with complete warranty support.
+        <p className="text-sm sm:text-base text-muted max-w-2xl mx-auto">
+          Explore certified smartphones with battery health guarantee, high-definition smart TVs, inverter refrigerators, and luxury living room collections.
         </p>
 
         {/* Global Catalog Search Bar */}
         <div className="max-w-xl mx-auto pt-4 flex gap-2">
-          <Input
-            id="public-search"
-            placeholder="Search iPhones, Samsung, Smart TVs, Fridges, Sofas..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Button variant="solid" onClick={() => navigate('/admin')}>
+          <div className="relative flex-1">
+            <Input
+              id="public-catalog-search"
+              placeholder="Search iPhone, Samsung, Sony 4K TV, Fridge, Recliner..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pr-8"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-text cursor-pointer"
+                aria-label="Clear search"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <Button
+            variant="solid"
+            onClick={() => {}}
+            className="gap-2 cursor-pointer"
+            aria-label="Submit search"
+          >
             <Search size={16} /> Search
           </Button>
         </div>
       </Container>
 
-      {/* Two Store Portals */}
+      {/* Store Filter Tabs */}
       <Container size="xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-w-0">
-          {/* Mobiles Section Card */}
-          <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:border-accent transition-colors">
-            <div className="space-y-4">
-              <div className="w-14 h-14 rounded-3xl border border-border bg-bg flex items-center justify-center text-text shadow-sm">
-                <Smartphone size={24} />
-              </div>
-              <div>
-                <Badge variant="default" className="mb-2">
-                  Store 01
-                </Badge>
-                <h2 className="text-2xl font-semibold text-text">Star Mobiles</h2>
-                <p className="text-sm text-muted mt-2">
-                  Latest 5G smartphones, certified pre-owned iPhones with battery health guarantee, official brand accessories, and transparent trade-in program.
-                </p>
-              </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-border pb-4">
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedStore('all');
+                setSelectedCategory('');
+              }}
+              className={`px-4 py-2 text-xs rounded-full border cursor-pointer font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                selectedStore === 'all'
+                  ? 'bg-accent text-accent-fg border-accent'
+                  : 'bg-surface text-text border-border hover:bg-bg'
+              }`}
+            >
+              <Layers size={14} /> All Collections ({products.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedStore('mobiles');
+                setSelectedCategory('');
+              }}
+              className={`px-4 py-2 text-xs rounded-full border cursor-pointer font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                selectedStore === 'mobiles'
+                  ? 'bg-accent text-accent-fg border-accent'
+                  : 'bg-surface text-text border-border hover:bg-bg'
+              }`}
+            >
+              <Smartphone size={14} /> Star Mobiles
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedStore('furniture-electronics');
+                setSelectedCategory('');
+              }}
+              className={`px-4 py-2 text-xs rounded-full border cursor-pointer font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                selectedStore === 'furniture-electronics'
+                  ? 'bg-accent text-accent-fg border-accent'
+                  : 'bg-surface text-text border-border hover:bg-bg'
+              }`}
+            >
+              <Tv size={14} /> Furniture & Electronics
+            </button>
+          </div>
 
-              <div className="space-y-2 text-xs text-muted pt-2 border-t border-border">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-text" /> 100% Genuine with Store Warranty
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone size={14} className="text-text" /> Instant WhatsApp Price Enquiry
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              <Button
-                variant="solid"
-                className="w-full gap-2 justify-center"
-                onClick={() => navigate('/admin/mobiles')}
-              >
-                Browse Mobiles Portal <ArrowRight size={16} />
-              </Button>
-            </div>
-          </Card>
-
-          {/* Furniture & Electronics Card */}
-          <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:border-accent transition-colors">
-            <div className="space-y-4">
-              <div className="w-14 h-14 rounded-3xl border border-border bg-bg flex items-center justify-center text-text shadow-sm">
-                <Tv size={24} />
-              </div>
-              <div>
-                <Badge variant="default" className="mb-2">
-                  Store 02
-                </Badge>
-                <h2 className="text-2xl font-semibold text-text">Star Furniture & Electronics</h2>
-                <p className="text-sm text-muted mt-2">
-                  Smart 4K Televisions, energy-efficient refrigerators, automatic washing machines, luxury sofas, ergonomic beds, and living room collections.
-                </p>
-              </div>
-
-              <div className="space-y-2 text-xs text-muted pt-2 border-t border-border">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-text" /> Doorstep Delivery & Professional Installation
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone size={14} className="text-text" /> Zero Cost EMI Options Available
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              <Button
-                variant="solid"
-                className="w-full gap-2 justify-center"
-                onClick={() => navigate('/admin/furniture-electronics')}
-              >
-                Browse Furniture & Electronics <ArrowRight size={16} />
-              </Button>
-            </div>
-          </Card>
+          <div className="text-xs text-muted">
+            Showing <span className="font-semibold text-text">{products.length}</span> verified items
+          </div>
         </div>
+
+        {/* Category Pill Sub-Filters */}
+        {availableCategories.length > 0 && (
+          <div className="flex items-center gap-2 pt-4 overflow-x-auto pb-2">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory('')}
+              className={`text-xs px-3 py-1 rounded-full border cursor-pointer transition-colors whitespace-nowrap ${
+                selectedCategory === ''
+                  ? 'bg-accent text-accent-fg border-accent font-medium'
+                  : 'bg-surface text-muted border-border hover:text-text'
+              }`}
+            >
+              All Types
+            </button>
+            {availableCategories.map(({ slug, name }) => (
+              <button
+                key={slug}
+                type="button"
+                onClick={() => setSelectedCategory(slug)}
+                className={`text-xs px-3 py-1 rounded-full border cursor-pointer transition-colors whitespace-nowrap ${
+                  selectedCategory === slug
+                    ? 'bg-accent text-accent-fg border-accent font-medium'
+                    : 'bg-surface text-muted border-border hover:text-text'
+                }`}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        )}
+      </Container>
+
+      {/* Live Product Cards Grid */}
+      <Container size="xl">
+        {isLoading ? (
+          <div className="py-24 text-center space-y-3">
+            <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin mx-auto" />
+            <p className="text-sm text-muted">Loading live inventory from stores...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="py-20 text-center border border-border rounded-3xl bg-surface space-y-3">
+            <Search size={32} className="mx-auto text-muted" />
+            <h3 className="text-base font-semibold text-text">No matching products found</h3>
+            <p className="text-xs text-muted max-w-sm mx-auto">
+              We couldn't find items matching your search or filter. Try clearing filters or searching for another keyword.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearch('');
+                setSelectedStore('all');
+                setSelectedCategory('');
+              }}
+              className="text-xs mt-2"
+            >
+              Reset All Filters
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-w-0">
+            {products.map((product) => {
+              const inStockQty = product.inventory?.[0]?.quantity_on_hand ?? 0;
+              const isAvailable = inStockQty > 0;
+              const isMobiles = product.stores?.code === 'mobiles';
+              const isRecentlyAdded = recentlyAddedId === product.id;
+
+              return (
+                <Card
+                  key={product.id}
+                  className="p-5 sm:p-6 flex flex-col justify-between space-y-4 hover:border-accent transition-colors min-w-0"
+                >
+                  <div className="space-y-3 min-w-0">
+                    {/* Top Badges */}
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="default" className="text-[11px] font-medium">
+                        {isMobiles ? 'Star Mobiles' : 'Furniture & Electronics'}
+                      </Badge>
+                      {isAvailable ? (
+                        <Badge variant="success" className="text-[10px]">
+                          {inStockQty > 2 ? 'In Stock' : `Only ${inStockQty} Left`}
+                        </Badge>
+                      ) : (
+                        <Badge variant="default" className="text-[10px]">
+                          On Order
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Product Name & Brand */}
+                    <div>
+                      <div className="text-[11px] uppercase tracking-wider text-muted font-medium">
+                        {product.brands?.name || 'Star Store'}
+                      </div>
+                      <h3 className="text-base font-semibold text-text line-clamp-1 mt-0.5">
+                        {product.name}
+                      </h3>
+                      <p className="text-xs text-muted line-clamp-2 mt-1">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    {/* Spec Highlights Snippet */}
+                    {product.specs && (
+                      <div className="pt-2 flex flex-wrap gap-1.5">
+                        {product.specs.storage && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-border bg-bg text-muted">
+                            {product.specs.storage}
+                          </span>
+                        )}
+                        {product.specs.battery_health && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-border bg-bg text-muted">
+                            {product.specs.battery_health}% Battery
+                          </span>
+                        )}
+                        {product.specs.screen_size && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-border bg-bg text-muted">
+                            {product.specs.screen_size}
+                          </span>
+                        )}
+                        {product.specs.capacity && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-border bg-bg text-muted">
+                            {product.specs.capacity}
+                          </span>
+                        )}
+                        {product.specs.condition && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-border bg-bg text-muted">
+                            {product.specs.condition}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Price & Action Footer */}
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <div className="flex items-baseline justify-between">
+                      <div>
+                        <div className="text-lg font-bold text-text">
+                          {formatCurrency(product.selling_price)}
+                        </div>
+                        <div className="text-[10px] text-muted">
+                          Incl. {product.gst_rate}% GST
+                        </div>
+                      </div>
+                      {product.mrp && product.mrp > product.selling_price && (
+                        <div className="text-xs text-muted line-through">
+                          MRP {formatCurrency(product.mrp)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveModalProduct(product)}
+                        className="text-xs justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Eye size={14} /> Quick View
+                      </Button>
+                      <Button
+                        variant="solid"
+                        size="sm"
+                        onClick={(e) => handleAddToCart(e, product)}
+                        className="text-xs justify-center gap-1.5 cursor-pointer"
+                      >
+                        {isRecentlyAdded ? (
+                          <>
+                            <Check size={14} /> Added
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag size={14} /> Add to Cart
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </Container>
 
       {/* Trust & Store Contact Section */}
       <Container size="xl">
-        <div className="border border-border rounded-3xl p-6 sm:p-8 bg-surface grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div className="border border-border rounded-3xl p-6 sm:p-8 bg-surface grid grid-cols-1 md:grid-cols-3 gap-6 text-left min-w-0">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-text">
               <MapPin size={18} /> Store Locations
@@ -127,10 +357,10 @@ export function PublicHomePage() {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-text">
-              <MessageSquare size={18} /> WhatsApp Enquiry
+              <Phone size={18} /> Instant WhatsApp Enquiry
             </div>
             <p className="text-xs text-muted">
-              Have questions about stock availability or buyback price? Message us directly.
+              Have questions about stock availability or certified trade-in values? Chat with us directly.
             </p>
             <div className="text-xs font-semibold text-text">+91 98200 12345 / +91 98200 12346</div>
           </div>
@@ -140,14 +370,26 @@ export function PublicHomePage() {
               <ShieldCheck size={18} /> Official GST Invoicing
             </div>
             <p className="text-xs text-muted">
-              GSTIN: 27AAAAA0000A1Z5. Full B2B and B2C tax compliance with input tax credit support.
+              GSTIN: 27AAAAA0000A1Z5. Full B2B and B2C tax compliance with Input Tax Credit support.
             </p>
-            <Link to="/admin" className="text-xs font-semibold underline block pt-1">
-              Staff & Cashier Admin Login →
+            <Link
+              to="/login"
+              className="text-xs font-medium text-text hover:underline inline-flex items-center gap-1 pt-1"
+            >
+              Staff & Owner Portal Login <ArrowRight size={12} />
             </Link>
           </div>
         </div>
       </Container>
+
+      {/* Product Detail Modal */}
+      {activeModalProduct && (
+        <ProductDetailModal
+          product={activeModalProduct}
+          isOpen={Boolean(activeModalProduct)}
+          onClose={() => setActiveModalProduct(null)}
+        />
+      )}
     </div>
   );
 }

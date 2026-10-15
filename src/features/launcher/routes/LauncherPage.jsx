@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, Button, Badge, Modal } from '@/shared/ui';
 import { useStores } from '@/features/stores';
 import { useAuth, LoginForm } from '@/features/auth';
-import { Smartphone, Tv, Store, ArrowRight, UserCheck, LogIn } from 'lucide-react';
+import { Smartphone, Tv, Store, ArrowRight, UserCheck, LogIn, Users } from 'lucide-react';
 
 export function LauncherPage() {
   const navigate = useNavigate();
@@ -188,25 +188,62 @@ export function LauncherPage() {
         )}
       </div>
 
-      {/* Owner Global View */}
+      {/* Owner Command Modules */}
       {isOwner && (
-        <Card className="p-6 sm:p-7 rounded-3xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl border border-border bg-bg/80 flex items-center justify-center text-text shadow-sm shrink-0">
-              <Store size={22} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Card className="p-6 rounded-3xl bg-surface border border-border flex flex-col justify-between space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl border border-border bg-bg/80 flex items-center justify-center text-text shadow-sm shrink-0">
+                <Users size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base text-text">Staff Management System</h3>
+                <p className="text-xs text-muted mt-0.5">
+                  Manage staff directory, approve/reject leaves, and process monthly salaries.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-base text-text">Owner Master Dashboard</h3>
-              <p className="text-xs text-muted mt-0.5">
-                Combined financials, multi-store profit margins, inventory valuation, and GST registers.
-              </p>
+            <Button variant="solid" onClick={() => navigate('/admin/staff')} className="w-full text-xs cursor-pointer">
+              Open Staff Management (HRMS) →
+            </Button>
+          </Card>
+
+          <Card className="p-6 rounded-3xl bg-surface border border-border flex flex-col justify-between space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl border border-border bg-bg/80 flex items-center justify-center text-text shadow-sm shrink-0">
+                <Store size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base text-text">Owner Master Dashboard</h3>
+                <p className="text-xs text-muted mt-0.5">
+                  Combined financials, profit margins, stock valuation, and GST registers.
+                </p>
+              </div>
             </div>
-          </div>
-          <Button variant="outline" onClick={() => navigate('/admin/all')} className="rounded-full shrink-0">
-            View Consolidated Analytics
-          </Button>
-        </Card>
+            <Button variant="outline" onClick={() => navigate('/admin/all')} className="w-full text-xs cursor-pointer">
+              View Consolidated Analytics →
+            </Button>
+          </Card>
+        </div>
       )}
+
+      {/* Staff Self-Service Access */}
+      <Card className="p-5 rounded-3xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl border border-border bg-bg flex items-center justify-center text-text shrink-0">
+            <Users size={18} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-sm text-text">Employee Self-Service Portal</h4>
+            <p className="text-xs text-muted">
+              Check annual leave balance, submit leave requests, and view monthly payslips.
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => navigate('/admin/my-portal')} className="text-xs shrink-0 cursor-pointer">
+          My Staff Portal →
+        </Button>
+      </Card>
 
       {/* Sign In Modal */}
       <Modal

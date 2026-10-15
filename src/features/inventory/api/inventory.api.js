@@ -97,3 +97,63 @@ export async function createProductUnit(payload) {
   if (error) throw error;
   return data;
 }
+
+/**
+ * Adjusts inventory stock count and logs audit adjustment
+ */
+export async function adjustInventoryStock({ storeId, productId, newQuantity, previousQuantity, reason, notes }) {
+  const changeQty = newQuantity - previousQuantity;
+
+  // 1. Log adjustment in stock_adjustments table
+  const { error: adjError } = await supabase
+    .from('stock_adjustments')
+    .insert({
+      store_id: storeId,
+      product_id: productId,
+      previous_quantity: previousQuantity,
+      new_quantity: newQuantity,
+      change_quantity: changeQty,
+      reason,
+      notes,
+    });
+
+  if (adjError) {
+    console.warn('Could not record stock adjustment audit log:', adjError.message);
+  }
+
+  // 2. Update quantity_on_hand in inventory table
+  const { data, error } = await supabase
+    .from('inventory')
+    .upsert({
+      store_id: storeId,
+      product_id: productId,
+      quantity_on_hand: newQuantity,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'store_id,product_id' })
+    .select('store_id, product_id, quantity_on_hand')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Updates product pricing and GST configuration
+ */
+export async function updateProductPricing({ productId, sellingPrice, costPrice, minSellingPrice, gstRate }) {
+  const { data, error } = await supabase
+    .from('products')
+    .update({
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      min_selling_price: minSellingPrice,
+      gst_rate: gstRate,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', productId)
+    .select('id, name, selling_price, cost_price, min_selling_price, gst_rate')
+    .single();
+
+  if (error) throw error;
+  return data;
+}

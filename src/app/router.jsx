@@ -7,6 +7,8 @@ import { InventoryPage } from '@/features/inventory';
 import { SecondHandIntakePage } from '@/features/second-hand';
 import { OwnerDashboardPage } from '@/features/reports';
 import { PublicHomePage } from '@/features/catalog';
+import { LoginPage } from '@/features/auth';
+import { StaffManagementPage, StaffPortalPage } from '@/features/staff';
 
 export const router = createBrowserRouter([
   {
@@ -18,12 +20,24 @@ export const router = createBrowserRouter([
         element: <PublicHomePage />,
       },
       {
+        path: 'login',
+        element: <LoginPage />,
+      },
+      {
         path: 'admin',
         element: <LauncherPage />,
       },
       {
         path: 'admin/all',
         element: <OwnerDashboardPage />,
+      },
+      {
+        path: 'admin/staff',
+        element: <StaffManagementPage />,
+      },
+      {
+        path: 'admin/my-portal',
+        element: <StaffPortalPage />,
       },
       {
         path: 'admin/:storeCode',
