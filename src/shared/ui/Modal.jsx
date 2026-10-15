@@ -37,24 +37,34 @@ export function Modal({ isOpen, onClose, title, className, children }) {
     >
       <div
         className={cn(
-          'relative w-full max-w-lg rounded-3xl border border-border bg-surface p-6 sm:p-8 text-text',
-          'max-h-[90vh] overflow-y-auto min-w-0 shadow-sm',
+          'relative w-full max-w-lg rounded-3xl border border-border bg-surface text-text',
+          'max-h-[90vh] flex flex-col overflow-hidden min-w-0 shadow-sm',
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-border mb-5">
-          {title && <h3 className="text-lg font-semibold">{title}</h3>}
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-muted hover:text-text rounded-full hover:bg-bg transition-colors cursor-pointer ml-auto"
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
+        {(title || onClose) && (
+          <div className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-border bg-surface shrink-0">
+            {title ? (
+              <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+            ) : (
+              <div />
+            )}
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1.5 text-muted hover:text-text rounded-full hover:bg-bg transition-colors cursor-pointer ml-auto"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+        )}
+        <div className="flex-1 overflow-y-auto px-6 py-5 sm:px-8 sm:py-6 min-w-0">
+          {children}
         </div>
-        <div>{children}</div>
       </div>
     </div>
   );

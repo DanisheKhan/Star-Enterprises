@@ -164,3 +164,110 @@ export async function upsertSalaryRecord(payload) {
   if (error) throw error;
   return data;
 }
+
+/**
+ * Grants leave to a staff member by owner, and automatically calculates and deducts
+ * loss of pay from the employee's monthly payroll based on their per-day cost.
+ */
+export async function grantStaffLeave({
+  staffId,
+  leaveType = 'unpaid',
+  startDate,
+  endDate,
+  totalDays,
+  reason,
+  deductSalary = true,
+  monthYear = '2026-10',
+  reviewerName = 'Store Owner',
+}) {
+  // 1. Insert approved leave into staff_leaves
+  const { data: leaveRecord, error: leaveError } = await supabase
+    .from('staff_leaves')
+    .insert({
+      staff_id: staffId,
+      leave_type: leaveType,
+      start_date: startDate,
+      end_date: endDate,
+      total_days: Number(totalDays),
+      reason: reason || `Leave granted by ${reviewerName}`,
+      status: 'approved',
+      reviewed_by: reviewerName,
+      reviewed_at: new Date().toISOString(),
+      review_notes: deductSalary
+        ? `Approved by Owner with ${totalDays} days salary deduction`
+        : 'Approved by Owner as paid leave',
+    })
+    .select('id, staff_id, leave_type, start_date, end_date, total_days, status')
+    .single();
+
+  if (leaveError) throw leaveError;
+
+  // 2. If deductSalary is true, calculate deduction and update staff_salaries
+  if (deductSalary) {
+    // Fetch employee's current base salary
+    const { data: staff, error: staffError } = await supabase
+      .from('staff_profiles')
+      .select('id, base_salary, full_name')
+      .eq('id', staffId)
+      .single();
+
+    if (!staffError && staff) {
+      const dailyCost = Math.round(Number(staff.base_salary || 0) / 30);
+      const leaveDeduction = dailyCost * Number(totalDays);
+
+      // Check if salary record already exists for this staff and monthYear
+      const { data: existingSal } = await supabase
+        .from('staff_salaries')
+        .select('id, base_salary, allowances, deductions, net_salary, notes')
+        .eq('staff_id', staffId)
+        .eq('month_year', monthYear)
+        .maybeSingle();
+
+      const baseSalary = Number(existingSal?.base_salary ?? staff.base_salary ?? 0);
+      const allowances = Number(existingSal?.allowances ?? 0);
+      const prevDeductions = Number(existingSal?.deductions ?? 0);
+      const newDeductions = prevDeductions + leaveDeduction;
+      const netSalary = Math.max(0, baseSalary + allowances - newDeductions);
+      const deductionNote = `${Number(totalDays)} days leave deduction (₹${leaveDeduction.toLocaleString('en-IN')} @ ₹${dailyCost}/day)`;
+      const newNotes = existingSal?.notes
+        ? `${existingSal.notes}; ${deductionNote}`
+        : deductionNote;
+
+      if (existingSal?.id) {
+        await supabase
+          .from('staff_salaries')
+          .update({
+            deductions: newDeductions,
+            net_salary: netSalary,
+            notes: newNotes,
+          })
+          .eq('id', existingSal.id);
+      } else {
+        await supabase
+          .from('staff_salaries')
+          .insert({
+            staff_id: staffId,
+            month_year: monthYear,
+            base_salary: baseSalary,
+            allowances: allowances,
+            deductions: newDeductions,
+            net_salary: netSalary,
+            payment_status: 'unpaid',
+            notes: newNotes,
+          });
+      }
+    }
+  }
+
+  // 3. If leave covers current date, update staff status to 'on_leave'
+  const today = new Date().toISOString().split('T')[0];
+  if (startDate <= today && endDate >= today) {
+    await supabase
+      .from('staff_profiles')
+      .update({ status: 'on_leave' })
+      .eq('id', staffId);
+  }
+
+  return leaveRecord;
+}
+

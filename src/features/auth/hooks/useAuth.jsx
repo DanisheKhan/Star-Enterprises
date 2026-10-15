@@ -53,124 +53,53 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Effective profile: real auth session if present, otherwise demo profile
+  // Effective profile: real auth session if present, otherwise owner profile
   const effectiveProfile = user
     ? profile
     : {
         id: 'demo-user',
-        email:
-          demoRole === 'owner'
-            ? 'owner@starenterprises.com'
-            : demoRole === 'mobiles_cashier'
-            ? 'cashier.mobiles@starenterprises.com'
-            : 'cashier.fe@starenterprises.com',
-        full_name:
-          demoRole === 'owner'
-            ? 'Store Owner (Admin)'
-            : demoRole === 'mobiles_cashier'
-            ? 'Imran Khan (Mobiles Cashier)'
-            : 'Rahul Sharma (Furniture Cashier)',
-        role: demoRole === 'owner' ? 'owner' : 'cashier',
-        assignedBranch:
-          demoRole === 'owner'
-            ? 'all'
-            : demoRole === 'mobiles_cashier'
-            ? 'mobiles'
-            : 'furniture-electronics',
+        email: 'owner@starenterprises.com',
+        full_name: 'Store Owner (Admin)',
+        role: 'owner',
+        assignedBranch: 'all',
       };
 
-  const isOwner = effectiveProfile?.role === 'owner';
+  const isOwner = true;
 
-  function canAccessStore(storeIdOrCode) {
-    if (isOwner) return true;
-
-    // Check by code or ID
-    if (!user) {
-      if (demoRole === 'mobiles_cashier') {
-        return (
-          storeIdOrCode === 'mobiles' ||
-          storeIdOrCode === 'e4a2d8cb-b097-48f8-b39b-e85df6498f41' ||
-          storeIdOrCode === 'store-1'
-        );
-      }
-      if (demoRole === 'fe_cashier') {
-        return (
-          storeIdOrCode === 'furniture-electronics' ||
-          storeIdOrCode === 'f7b3c9da-a108-49e9-c40c-f96ea7509f52' ||
-          storeIdOrCode === 'store-2'
-        );
-      }
-      return false;
-    }
-
-    return storeAccess.some(
-      (sa) => sa.store_id === storeIdOrCode || sa.stores?.code === storeIdOrCode
-    );
+  function canAccessStore(_storeIdOrCode) {
+    return true; // Owner has unrestricted access to all stores and features
   }
 
   /**
-   * Universal sign-in handler: checks Supabase first; if offline/invalid, matches pre-configured accounts
+   * Universal sign-in handler for Store Owner
    */
   async function signIn({ email, password }) {
     const trimmedEmail = email?.trim().toLowerCase();
 
-    // 1. Check for standard pre-configured role matches
-    if (trimmedEmail === 'owner@starenterprises.com' || trimmedEmail === 'admin@star.com') {
+    // 1. Standard owner account match
+    if (
+      trimmedEmail === 'owner@starenterprises.com' ||
+      trimmedEmail === 'admin@star.com' ||
+      trimmedEmail.includes('owner') ||
+      trimmedEmail.includes('admin')
+    ) {
       setDemoRole('owner');
       return { role: 'owner', redirectTo: '/admin' };
-    }
-
-    if (
-      trimmedEmail === 'cashier.mobiles@starenterprises.com' ||
-      trimmedEmail === 'mobiles@star.com'
-    ) {
-      setDemoRole('mobiles_cashier');
-      return { role: 'cashier', branch: 'mobiles', redirectTo: '/admin/mobiles' };
-    }
-
-    if (
-      trimmedEmail === 'cashier.fe@starenterprises.com' ||
-      trimmedEmail === 'furniture@star.com'
-    ) {
-      setDemoRole('fe_cashier');
-      return {
-        role: 'cashier',
-        branch: 'furniture-electronics',
-        redirectTo: '/admin/furniture-electronics',
-      };
     }
 
     // 2. Attempt real Supabase authentication
     try {
       const data = await apiSignIn({ email: trimmedEmail, password });
-      return { role: profile?.role || 'cashier', redirectTo: '/admin', session: data };
-    } catch (err) {
-      // If user typed owner or admin in email, grant owner role
-      if (trimmedEmail.includes('owner') || trimmedEmail.includes('admin')) {
-        setDemoRole('owner');
-        return { role: 'owner', redirectTo: '/admin' };
-      }
-      if (trimmedEmail.includes('mobiles')) {
-        setDemoRole('mobiles_cashier');
-        return { role: 'cashier', branch: 'mobiles', redirectTo: '/admin/mobiles' };
-      }
-      if (trimmedEmail.includes('furniture') || trimmedEmail.includes('fe')) {
-        setDemoRole('fe_cashier');
-        return {
-          role: 'cashier',
-          branch: 'furniture-electronics',
-          redirectTo: '/admin/furniture-electronics',
-        };
-      }
-      throw err;
+      return { role: profile?.role || 'owner', redirectTo: '/admin', session: data };
+    } catch {
+      // Default fallback to owner
+      setDemoRole('owner');
+      return { role: 'owner', redirectTo: '/admin' };
     }
   }
 
-  function loginAsPersona(role) {
-    setDemoRole(role);
-    if (role === 'owner') return '/admin';
-    if (role === 'mobiles_cashier') return '/admin/mobiles';
-    if (role === 'fe_cashier') return '/admin/furniture-electronics';
+  function loginAsPersona(_role = 'owner') {
+    setDemoRole('owner');
     return '/admin';
   }
 

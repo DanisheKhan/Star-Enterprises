@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RootLayout } from './layouts/RootLayout';
 import { WorkspaceLayout } from './layouts/WorkspaceLayout';
 import { LauncherPage } from '@/features/launcher';
@@ -8,7 +8,7 @@ import { SecondHandIntakePage } from '@/features/second-hand';
 import { OwnerDashboardPage } from '@/features/reports';
 import { PublicHomePage } from '@/features/catalog';
 import { LoginPage } from '@/features/auth';
-import { StaffManagementPage, StaffPortalPage } from '@/features/staff';
+import { StaffManagementPage } from '@/features/staff';
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin/my-portal',
-        element: <StaffPortalPage />,
+        element: <Navigate to="/admin/staff" replace />,
       },
       {
         path: 'admin/:storeCode',

@@ -25,6 +25,8 @@ export function RootLayout() {
       navigate('/admin');
     } else if (code === 'all') {
       navigate('/admin/all');
+    } else if (code === 'staff') {
+      navigate('/admin/staff');
     } else {
       navigate(`/admin/${code}`);
     }
@@ -60,6 +62,7 @@ export function RootLayout() {
                       {s.name}
                     </option>
                   ))}
+                  <option value="staff">Staff Management (HRMS)</option>
                   {isOwner && <option value="all">★ All Stores Combined</option>}
                 </select>
               </div>
@@ -97,13 +100,13 @@ export function RootLayout() {
                 )}
               </Button>
 
-              {/* Discreet Staff & Admin Portal Link */}
+              {/* Discreet Owner Portal Link */}
               <Link
                 to="/login"
                 className="text-xs px-2.5 sm:px-3 py-1.5 rounded-full border border-border text-muted hover:text-text hover:bg-bg transition-colors flex items-center gap-1.5 font-medium"
               >
                 <Shield size={13} />
-                <span className="hidden sm:inline">Staff Portal</span>
+                <span className="hidden sm:inline">Owner Portal</span>
               </Link>
             </div>
           ) : (
@@ -178,7 +181,7 @@ export function RootLayout() {
                 Public Store
               </Link>
               <Link to="/login" className="hover:text-text transition-colors font-medium">
-                Staff & Admin Portal
+                Store Owner Portal
               </Link>
             </div>
           </div>

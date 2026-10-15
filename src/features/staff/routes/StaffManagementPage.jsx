@@ -26,6 +26,7 @@ import {
 import { StaffModal } from '../components/StaffModal';
 import { PayslipModal } from '../components/PayslipModal';
 import { LeaveActionModal } from '../components/LeaveActionModal';
+import { GrantLeaveModal } from '../components/GrantLeaveModal';
 import { formatCurrency, formatDate } from '@/shared/lib/format';
 import {
   Users,
@@ -49,6 +50,8 @@ export function StaffManagementPage() {
   const [staffToEdit, setStaffToEdit] = useState(null);
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   const [selectedLeave, setSelectedLeave] = useState(null);
+  const [isGrantLeaveOpen, setIsGrantLeaveOpen] = useState(false);
+  const [grantStaffTarget, setGrantStaffTarget] = useState(null);
 
   // Pay Modal State
   const [salaryToPay, setSalaryToPay] = useState(null);
@@ -113,6 +116,17 @@ export function StaffManagementPage() {
             <Shield size={13} /> Owner Master Control
           </Badge>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setGrantStaffTarget(null);
+              setIsGrantLeaveOpen(true);
+            }}
+            className="text-xs gap-1.5"
+          >
+            <Calendar size={14} /> Grant Leave
+          </Button>
+          <Button
             variant="solid"
             size="sm"
             onClick={() => {
@@ -173,19 +187,32 @@ export function StaffManagementPage() {
       {/* TAB 1: STAFF DIRECTORY */}
       {activeTab === 'directory' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-muted">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted">
             <span>Showing active staff members across Star Mobiles and Furniture</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setStaffToEdit(null);
-                setIsStaffModalOpen(true);
-              }}
-              className="text-xs"
-            >
-              <Plus size={13} /> Add Employee
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setGrantStaffTarget(null);
+                  setIsGrantLeaveOpen(true);
+                }}
+                className="text-xs gap-1.5"
+              >
+                <Calendar size={13} /> Grant Leave
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStaffToEdit(null);
+                  setIsStaffModalOpen(true);
+                }}
+                className="text-xs gap-1.5"
+              >
+                <Plus size={13} /> Add Employee
+              </Button>
+            </div>
           </div>
 
           {staffLoading ? (
@@ -211,7 +238,7 @@ export function StaffManagementPage() {
                   <TableHeaderCell>Employee Name</TableHeaderCell>
                   <TableHeaderCell>Role & Store</TableHeaderCell>
                   <TableHeaderCell>Contact & Gmail</TableHeaderCell>
-                  <TableHeaderCell>Base Salary</TableHeaderCell>
+                  <TableHeaderCell>Base Salary / Per Day</TableHeaderCell>
                   <TableHeaderCell>Annual Quota</TableHeaderCell>
                   <TableHeaderCell>Status</TableHeaderCell>
                   <TableHeaderCell className="text-right">Actions</TableHeaderCell>
@@ -235,8 +262,13 @@ export function StaffManagementPage() {
                       <div className="text-xs text-text">{emp.phone}</div>
                       <div className="text-[10px] text-muted font-mono">{emp.email}</div>
                     </TableCell>
-                    <TableCell className="font-semibold text-xs text-text">
-                      {formatCurrency(emp.base_salary)}
+                    <TableCell>
+                      <div className="font-semibold text-xs text-text">
+                        {formatCurrency(emp.base_salary)}
+                      </div>
+                      <div className="text-[11px] text-muted font-mono font-medium">
+                        {formatCurrency(Math.round(Number(emp.base_salary || 0) / 30))}/day
+                      </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted">
                       {emp.annual_leave_quota} days / yr
@@ -258,6 +290,18 @@ export function StaffManagementPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setGrantStaffTarget(emp);
+                            setIsGrantLeaveOpen(true);
+                          }}
+                          className="text-xs py-1 px-2.5 gap-1 text-accent border-accent/40 hover:border-accent"
+                          title="Grant Leave & Deduct Salary"
+                        >
+                          <Calendar size={12} /> Leave
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -341,7 +385,20 @@ export function StaffManagementPage() {
 
           {/* Historical Leaves Table */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-text">Leave History & Decision Logs</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-text">Leave History & Decision Logs</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setGrantStaffTarget(null);
+                  setIsGrantLeaveOpen(true);
+                }}
+                className="text-xs gap-1.5"
+              >
+                <Plus size={13} /> Grant Staff Leave
+              </Button>
+            </div>
             {leavesLoading ? (
               <div className="py-12 text-center text-muted">Loading leave logs...</div>
             ) : leaves.length === 0 ? (
@@ -425,7 +482,7 @@ export function StaffManagementPage() {
                 <TableRow>
                   <TableHeaderCell>Employee</TableHeaderCell>
                   <TableHeaderCell>Role</TableHeaderCell>
-                  <TableHeaderCell>Basic Salary</TableHeaderCell>
+                  <TableHeaderCell>Basic Salary / Day</TableHeaderCell>
                   <TableHeaderCell>Incentives</TableHeaderCell>
                   <TableHeaderCell>Deductions</TableHeaderCell>
                   <TableHeaderCell>Net Payout</TableHeaderCell>
@@ -441,9 +498,19 @@ export function StaffManagementPage() {
                       <div className="text-[10px] text-muted font-mono">{sal.staff_profiles?.employee_code}</div>
                     </TableCell>
                     <TableCell className="text-xs text-muted">{sal.staff_profiles?.designation}</TableCell>
-                    <TableCell className="text-xs font-medium">{formatCurrency(sal.base_salary)}</TableCell>
+                    <TableCell>
+                      <div className="text-xs font-medium text-text">{formatCurrency(sal.base_salary)}</div>
+                      <div className="text-[10px] text-muted font-mono">{formatCurrency(Math.round(Number(sal.base_salary || 0) / 30))}/day</div>
+                    </TableCell>
                     <TableCell className="text-xs text-muted">+{formatCurrency(sal.allowances)}</TableCell>
-                    <TableCell className="text-xs text-danger">-{formatCurrency(sal.deductions)}</TableCell>
+                    <TableCell>
+                      <div className="text-xs text-danger font-medium">-{formatCurrency(sal.deductions)}</div>
+                      {sal.notes && (
+                        <div className="text-[10px] text-muted truncate max-w-36" title={sal.notes}>
+                          {sal.notes}
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="text-xs font-bold text-text">
                       {formatCurrency(sal.net_salary)}
                     </TableCell>
@@ -515,6 +582,17 @@ export function StaffManagementPage() {
           onClose={() => setSelectedLeave(null)}
         />
       )}
+
+      {/* Owner Grant Leave Modal */}
+      <GrantLeaveModal
+        isOpen={isGrantLeaveOpen}
+        onClose={() => {
+          setIsGrantLeaveOpen(false);
+          setGrantStaffTarget(null);
+        }}
+        staffList={staffList}
+        defaultStaff={grantStaffTarget}
+      />
 
       {/* Mark Salary Paid Modal */}
       {salaryToPay && (

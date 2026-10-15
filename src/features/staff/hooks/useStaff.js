@@ -9,6 +9,7 @@ import {
   listStaffSalaries,
   markSalaryPaid,
   upsertSalaryRecord,
+  grantStaffLeave,
 } from '../api/staff.api';
 
 export const STAFF_QUERY_KEYS = {
@@ -97,3 +98,16 @@ export function useUpsertSalaryRecord() {
     },
   });
 }
+
+export function useGrantStaffLeave() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: grantStaffLeave,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff', 'leaves'] });
+      queryClient.invalidateQueries({ queryKey: ['staff', 'salaries'] });
+      queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.allProfiles });
+    },
+  });
+}
+

@@ -4,7 +4,7 @@ import { Container, Card, Button, Input, Badge } from '@/shared/ui';
 import { Seo } from '@/shared/seo';
 import { useAuth } from '../hooks/useAuth';
 import { getErrorMessage } from '@/shared/lib/errors';
-import { Shield, Key, ArrowRight, UserCheck, Smartphone, Tv, ArrowLeft } from 'lucide-react';
+import { Shield, Key, ArrowRight, UserCheck, ArrowLeft } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export function LoginPage() {
   async function handleLoginSubmit(e) {
     e.preventDefault();
     if (!email || !password) {
-      setError('Please provide your Gmail / staff email and password.');
+      setError('Please provide your owner email and password.');
       return;
     }
 
@@ -38,7 +38,7 @@ export function LoginPage() {
     }
   }
 
-  function handleQuickLogin(role) {
+  function handleQuickLogin(role = 'owner') {
     const target = loginAsPersona(role);
     navigate(target);
   }
@@ -46,8 +46,8 @@ export function LoginPage() {
   return (
     <div className="py-12 sm:py-16 min-w-0">
       <Seo
-        title="Staff & Admin Portal Login | Star Enterprises"
-        description="Secure authentication portal for Star Enterprises store staff, managers, and owner administration."
+        title="Store Owner Portal Login | Star Enterprises"
+        description="Secure authentication portal for Star Enterprises store owner administration."
         path="/login"
         noindex
       />
@@ -64,13 +64,13 @@ export function LoginPage() {
         {/* Header */}
         <div className="text-center space-y-2">
           <Badge variant="accent" className="mb-1 text-xs">
-            Star Enterprises Internal Access
+            Star Enterprises Owner Access
           </Badge>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-text">
-            Staff & Owner Portal
+            Store Owner Portal
           </h1>
           <p className="text-xs sm:text-sm text-muted max-w-sm mx-auto">
-            Sign in with your registered credentials to access your store POS terminal, inventory, or management system.
+            Sign in with your store owner credentials to access full business operations, POS terminals, inventory, and management systems.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export function LoginPage() {
             <Input
               id="login-email"
               type="email"
-              label="Gmail / Staff Email Address"
+              label="Store Owner Email Address"
               placeholder="e.g. owner@starenterprises.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -109,7 +109,7 @@ export function LoginPage() {
               pending={pending}
               className="w-full justify-center gap-2 text-xs py-2.5 cursor-pointer mt-2"
             >
-              <Key size={14} /> Sign In to Workspace
+              <Key size={14} /> Sign In as Store Owner
             </Button>
           </form>
 
@@ -117,7 +117,7 @@ export function LoginPage() {
           <div className="pt-5 border-t border-border space-y-3">
             <div className="flex items-center justify-between text-xs text-muted">
               <span className="font-semibold text-text flex items-center gap-1.5">
-                <UserCheck size={14} /> Quick Demo Logins
+                <UserCheck size={14} /> Quick Demo Owner Access
               </span>
               <span>1-Click Sign-in</span>
             </div>
@@ -128,7 +128,7 @@ export function LoginPage() {
                 <div className="min-w-0">
                   <div className="font-semibold text-text flex items-center gap-1.5 truncate">
                     <Shield size={14} className="text-text shrink-0" />
-                    <span>Store Owner (Full Access)</span>
+                    <span>Store Owner (Full Business Access)</span>
                   </div>
                   <div className="text-[11px] text-muted font-mono truncate">
                     owner@starenterprises.com
@@ -138,49 +138,7 @@ export function LoginPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleQuickLogin('owner')}
-                  className="text-xs cursor-pointer shrink-0"
-                >
-                  Enter <ArrowRight size={12} />
-                </Button>
-              </div>
-
-              {/* Mobiles Staff Quick Button */}
-              <div className="p-3 border border-border rounded-xl bg-bg flex items-center justify-between gap-2 min-w-0">
-                <div className="min-w-0">
-                  <div className="font-semibold text-text flex items-center gap-1.5 truncate">
-                    <Smartphone size={14} className="text-text shrink-0" />
-                    <span>Star Mobiles Cashier</span>
-                  </div>
-                  <div className="text-[11px] text-muted font-mono truncate">
-                    cashier.mobiles@starenterprises.com
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickLogin('mobiles_cashier')}
-                  className="text-xs cursor-pointer shrink-0"
-                >
-                  Enter <ArrowRight size={12} />
-                </Button>
-              </div>
-
-              {/* Furniture Staff Quick Button */}
-              <div className="p-3 border border-border rounded-xl bg-bg flex items-center justify-between gap-2 min-w-0">
-                <div className="min-w-0">
-                  <div className="font-semibold text-text flex items-center gap-1.5 truncate">
-                    <Tv size={14} className="text-text shrink-0" />
-                    <span>Furniture Cashier</span>
-                  </div>
-                  <div className="text-[11px] text-muted font-mono truncate">
-                    cashier.fe@starenterprises.com
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickLogin('fe_cashier')}
-                  className="text-xs cursor-pointer shrink-0"
+                  className="text-xs cursor-pointer shrink-0 gap-1"
                 >
                   Enter <ArrowRight size={12} />
                 </Button>

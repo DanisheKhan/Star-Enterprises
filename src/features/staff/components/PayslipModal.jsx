@@ -20,7 +20,7 @@ export function PayslipModal({ salaryRecord, isOpen, onClose }) {
       title={`Payslip: ${staff?.full_name} (${salaryRecord.month_year})`}
       className="max-w-2xl"
     >
-      <div className="space-y-6 text-text min-w-0" id="printable-payslip">
+      <div className="space-y-4 text-text min-w-0" id="printable-payslip">
         {/* Company Header */}
         <div className="p-4 rounded-2xl border border-border bg-bg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>

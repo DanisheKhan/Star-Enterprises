@@ -33,8 +33,8 @@ export function LoginForm({ onSuccess }) {
   return (
     <Card className="w-full max-w-sm p-6 sm:p-8">
       <div className="mb-6 text-center">
-        <h2 className="text-xl font-semibold text-text">Staff Sign In</h2>
-        <p className="text-sm text-muted mt-1">Star Enterprises Multi-Store Portal</p>
+        <h2 className="text-xl font-semibold text-text">Store Owner Sign In</h2>
+        <p className="text-sm text-muted mt-1">Star Enterprises Owner Portal</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -47,8 +47,8 @@ export function LoginForm({ onSuccess }) {
         <Input
           id="email"
           type="email"
-          label="Staff Email"
-          placeholder="staff@starenterprises.in"
+          label="Owner Email"
+          placeholder="owner@starenterprises.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -65,7 +65,7 @@ export function LoginForm({ onSuccess }) {
         />
 
         <Button type="submit" variant="solid" pending={pending} className="w-full mt-2">
-          Sign In
+          Sign In as Store Owner
         </Button>
       </form>
     </Card>

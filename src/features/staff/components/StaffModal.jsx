@@ -3,6 +3,7 @@ import { Modal, Button, Input, Select } from '@/shared/ui';
 import { useUpsertStaffProfile } from '../hooks/useStaff';
 import { useStores } from '@/features/stores';
 import { getErrorMessage } from '@/shared/lib/errors';
+import { formatCurrency } from '@/shared/lib/format';
 
 function StaffForm({ staffToEdit, stores, onClose }) {
   const upsertMutation = useUpsertStaffProfile();
@@ -147,14 +148,24 @@ function StaffForm({ staffToEdit, stores, onClose }) {
           options={designationOptions}
         />
 
-        <Input
-          id="emp-salary"
-          type="number"
-          label="Monthly Base Salary (₹)"
-          value={formData.base_salary}
-          onChange={(e) => setFormData({ ...formData, base_salary: e.target.value })}
-          required
-        />
+        <div>
+          <Input
+            id="emp-salary"
+            type="number"
+            label="Monthly Base Salary (₹)"
+            value={formData.base_salary}
+            onChange={(e) => setFormData({ ...formData, base_salary: e.target.value })}
+            required
+          />
+          {Number(formData.base_salary) > 0 && (
+            <div className="mt-1 text-[11px] text-muted flex items-center justify-between">
+              <span>Per Day Cost (Base ÷ 30):</span>
+              <span className="font-semibold text-text font-mono">
+                {formatCurrency(Math.round(Number(formData.base_salary) / 30))}/day
+              </span>
+            </div>
+          )}
+        </div>
 
         <Input
           id="emp-leave-quota"

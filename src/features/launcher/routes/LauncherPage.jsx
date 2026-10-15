@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Card, Button, Badge, Modal } from '@/shared/ui';
 import { useStores } from '@/features/stores';
 import { useAuth, LoginForm } from '@/features/auth';
-import { Smartphone, Tv, Store, ArrowRight, UserCheck, LogIn, Users } from 'lucide-react';
+import { Smartphone, Tv, Store, ArrowRight, LogIn, Users } from 'lucide-react';
 
 export function LauncherPage() {
   const navigate = useNavigate();
-  const { isOwner, canAccessStore, profile, demoRole, setDemoRole, user } = useAuth();
+  const { isOwner, canAccessStore, user } = useAuth();
   const { data: stores = [], isLoading } = useStores();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -37,58 +37,20 @@ export function LauncherPage() {
           Select Store Workspace
         </h1>
         <p className="text-sm text-muted max-w-md mx-auto">
-          Logged in as <span className="font-semibold text-text">{profile?.full_name || 'Staff Member'}</span>{' '}
-          ({profile?.role || 'cashier'}). Select your assigned branch workspace to begin operations.
+          Logged in as <span className="font-semibold text-text">Store Owner (Admin)</span>. Select your store branch or administrative module to begin operations.
         </p>
 
-        {/* Demo Persona Switcher Bar */}
-        <div className="pt-3 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-xs text-muted flex items-center gap-1.5 mr-1">
-            <UserCheck size={14} /> Active Persona:
-          </span>
-          <button
-            type="button"
-            onClick={() => setDemoRole('owner')}
-            className={`px-3.5 py-1.5 text-xs rounded-full border cursor-pointer font-medium transition-all ${
-              demoRole === 'owner'
-                ? 'bg-accent text-accent-fg border-accent shadow-sm'
-                : 'bg-surface text-text border-border hover:bg-bg'
-            }`}
-          >
-            Owner (All Access)
-          </button>
-          <button
-            type="button"
-            onClick={() => setDemoRole('mobiles_cashier')}
-            className={`px-3.5 py-1.5 text-xs rounded-full border cursor-pointer font-medium transition-all ${
-              demoRole === 'mobiles_cashier'
-                ? 'bg-accent text-accent-fg border-accent shadow-sm'
-                : 'bg-surface text-text border-border hover:bg-bg'
-            }`}
-          >
-            Mobiles Cashier
-          </button>
-          <button
-            type="button"
-            onClick={() => setDemoRole('fe_cashier')}
-            className={`px-3.5 py-1.5 text-xs rounded-full border cursor-pointer font-medium transition-all ${
-              demoRole === 'fe_cashier'
-                ? 'bg-accent text-accent-fg border-accent shadow-sm'
-                : 'bg-surface text-text border-border hover:bg-bg'
-            }`}
-          >
-            Furniture Cashier
-          </button>
-          {!user && (
+        {!user && (
+          <div className="pt-2">
             <button
               type="button"
               onClick={() => setIsLoginModalOpen(true)}
-              className="px-3.5 py-1.5 text-xs rounded-full border border-border text-muted hover:text-text hover:bg-bg cursor-pointer ml-2 flex items-center gap-1.5 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full border border-border text-muted hover:text-text hover:bg-bg cursor-pointer transition-colors"
             >
-              <LogIn size={13} /> Sign In
+              <LogIn size={13} /> Owner Sign In
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Two Master Store Cards */}
@@ -132,7 +94,7 @@ export function LauncherPage() {
                 variant="solid"
                 disabled={!canAccessStore(mobilesStore.id)}
                 onClick={() => handleStartStore(mobilesStore)}
-                className="gap-2 rounded-full px-7"
+                className="gap-2 rounded-full px-7 cursor-pointer"
               >
                 Start Mobiles <ArrowRight size={16} />
               </Button>
@@ -179,7 +141,7 @@ export function LauncherPage() {
                 variant="solid"
                 disabled={!canAccessStore(feStore.id)}
                 onClick={() => handleStartStore(feStore)}
-                className="gap-2 rounded-full px-7"
+                className="gap-2 rounded-full px-7 cursor-pointer"
               >
                 Start Furniture & Electronics <ArrowRight size={16} />
               </Button>
@@ -199,7 +161,7 @@ export function LauncherPage() {
               <div>
                 <h3 className="font-semibold text-base text-text">Staff Management System</h3>
                 <p className="text-xs text-muted mt-0.5">
-                  Manage staff directory, approve/reject leaves, and process monthly salaries.
+                  Manage staff directory, review leaves, and process monthly salaries.
                 </p>
               </div>
             </div>
@@ -227,29 +189,11 @@ export function LauncherPage() {
         </div>
       )}
 
-      {/* Staff Self-Service Access */}
-      <Card className="p-5 rounded-3xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl border border-border bg-bg flex items-center justify-center text-text shrink-0">
-            <Users size={18} />
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm text-text">Employee Self-Service Portal</h4>
-            <p className="text-xs text-muted">
-              Check annual leave balance, submit leave requests, and view monthly payslips.
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => navigate('/admin/my-portal')} className="text-xs shrink-0 cursor-pointer">
-          My Staff Portal →
-        </Button>
-      </Card>
-
       {/* Sign In Modal */}
       <Modal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        title="Staff Sign In"
+        title="Store Owner Sign In"
         className="max-w-sm rounded-3xl"
       >
         <LoginForm onSuccess={() => setIsLoginModalOpen(false)} />
