@@ -99,7 +99,7 @@ export function InvoicesListPage() {
         </Table>
       )}
 
-      {/* Invoice Detail & Print Modal (80mm + Normal Bill) */}
+      {/* Invoice Detail & Print Modal (GST Tax Invoice) */}
       {selectedInvoiceId && (
         <InvoicePrintModal
           isOpen={Boolean(selectedInvoiceId)}

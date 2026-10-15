@@ -557,7 +557,7 @@ export function POSPage() {
         </form>
       </Modal>
 
-      {/* Invoice & Print Modal (80mm Thermal Receipt + Normal A4 GST Invoice) */}
+      {/* GST Tax Invoice & Print Modal */}
       <InvoicePrintModal
         isOpen={isReceiptOpen}
         onClose={() => setIsReceiptOpen(false)}
