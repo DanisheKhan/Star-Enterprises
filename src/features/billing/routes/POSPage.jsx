@@ -9,6 +9,7 @@ import {
 } from '@/shared/ui';
 import { useProducts, useProductUnits } from '@/features/inventory';
 import { usePlaceSale, useInvoiceDetail } from '../hooks/useBilling';
+import { InvoicePrintModal } from '../components/InvoicePrintModal';
 import { formatCurrency, formatDate } from '@/shared/lib/format';
 import { getErrorMessage } from '@/shared/lib/errors';
 import {
@@ -82,6 +83,7 @@ export function POSPage() {
           unit_id: null,
           name: product.name,
           sku: product.sku,
+          image_url: product.image_url,
           selling_price: product.selling_price,
           gst_rate: product.gst_rate,
           hsn_code: product.hsn_code,
@@ -110,6 +112,7 @@ export function POSPage() {
         unit_id: unit.id,
         name: pendingProduct.name,
         sku: pendingProduct.sku,
+        image_url: pendingProduct.image_url,
         selling_price: pendingProduct.selling_price,
         gst_rate: pendingProduct.gst_rate,
         hsn_code: pendingProduct.hsn_code,
@@ -191,10 +194,6 @@ export function POSPage() {
     }
   }
 
-  function handlePrintReceipt() {
-    window.print();
-  }
-
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -236,20 +235,36 @@ export function POSPage() {
                     className="p-4 flex flex-col justify-between hover:border-accent/40 transition-colors"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="font-semibold text-text line-clamp-1">{prod.name}</span>
-                        {prod.is_serialized && (
-                          <Badge variant="accent" className="text-[10px] shrink-0">
-                            {store.code === 'mobiles' ? 'IMEI' : 'Serial'}
-                          </Badge>
+                      <div className="flex gap-3 items-start">
+                        {prod.image_url && (
+                          <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-border bg-surface flex items-center justify-center">
+                            <img
+                              src={prod.image_url}
+                              alt={prod.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
                         )}
-                      </div>
-                      <p className="text-xs text-muted font-mono mt-1">{prod.sku}</p>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-lg font-semibold text-text">
-                          {formatCurrency(prod.selling_price)}
-                        </span>
-                        <span className="text-xs text-muted">+ {prod.gst_rate}% GST</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-1">
+                            <span className="font-semibold text-text line-clamp-1">{prod.name}</span>
+                            {prod.is_serialized && (
+                              <Badge variant="accent" className="text-[10px] shrink-0">
+                                {store.code === 'mobiles' ? 'IMEI' : 'Serial'}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted font-mono mt-0.5">{prod.sku}</p>
+                          <div className="mt-1.5 flex items-baseline gap-2">
+                            <span className="text-base font-semibold text-text">
+                              {formatCurrency(prod.selling_price)}
+                            </span>
+                            <span className="text-[11px] text-muted">+{prod.gst_rate}% GST</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -297,15 +312,29 @@ export function POSPage() {
                 <div className="max-h-72 overflow-y-auto divide-y divide-border min-w-0">
                   {cart.map((item, index) => (
                     <div key={index} className="py-3 flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-text text-sm truncate">{item.name}</div>
-                        {item.serial_number && (
-                          <div className="text-xs text-muted font-mono">
-                            SN: {item.serial_number} ({item.condition_grade})
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        {item.image_url && (
+                          <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface">
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
                           </div>
                         )}
-                        <div className="text-xs text-muted">
-                          {formatCurrency(item.selling_price)} + {item.gst_rate}% GST
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-text text-sm truncate">{item.name}</div>
+                          {item.serial_number && (
+                            <div className="text-xs text-muted font-mono">
+                              SN: {item.serial_number} ({item.condition_grade})
+                            </div>
+                          )}
+                          <div className="text-xs text-muted">
+                            {formatCurrency(item.selling_price)} + {item.gst_rate}% GST
+                          </div>
                         </div>
                       </div>
 
@@ -528,89 +557,12 @@ export function POSPage() {
         </form>
       </Modal>
 
-      {/* Printable Receipt Modal */}
-      <Modal
+      {/* Invoice & Print Modal (80mm Thermal Receipt + Normal A4 GST Invoice) */}
+      <InvoicePrintModal
         isOpen={isReceiptOpen}
         onClose={() => setIsReceiptOpen(false)}
-        title="Sale Complete - Tax Receipt"
-        className="max-w-md"
-      >
-        {invoiceLoading || !invoiceDetail ? (
-          <div className="py-8 text-center text-muted">Generating invoice receipt...</div>
-        ) : (
-          <div className="space-y-4">
-            <div
-              id="printable-receipt"
-              className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3"
-            >
-              <div className="text-center space-y-1">
-                <div className="font-bold text-sm">{invoiceDetail.stores?.name}</div>
-                <div>{invoiceDetail.stores?.address_line1}, {invoiceDetail.stores?.city}</div>
-                <div>GSTIN: {invoiceDetail.stores?.gstin}</div>
-                <div>Ph: {invoiceDetail.stores?.phone}</div>
-              </div>
-
-              <div className="border-t border-b border-dashed border-border py-2 space-y-1">
-                <div className="flex justify-between">
-                  <span>Invoice: {invoiceDetail.invoice_number}</span>
-                  <span>{formatDate(invoiceDetail.created_at)}</span>
-                </div>
-                <div>Customer: {invoiceDetail.customer_name}</div>
-                {invoiceDetail.customer_phone && <div>Phone: {invoiceDetail.customer_phone}</div>}
-              </div>
-
-              <div className="space-y-1">
-                {invoiceDetail.items?.map((item, i) => (
-                  <div key={i} className="flex justify-between py-1 border-b border-border/50">
-                    <div>
-                      <div>{item.item_name}</div>
-                      {item.serial_number && (
-                        <div className="text-[10px] text-muted">SN: {item.serial_number}</div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div>{formatCurrency(item.total_amount)}</div>
-                      <div className="text-[10px] text-muted">Qty: {item.quantity}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-dashed border-border pt-2 space-y-1">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(invoiceDetail.subtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>CGST</span>
-                  <span>{formatCurrency(invoiceDetail.cgst_amount)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>SGST</span>
-                  <span>{formatCurrency(invoiceDetail.sgst_amount)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-sm pt-1 border-t border-border">
-                  <span>Grand Total</span>
-                  <span>{formatCurrency(invoiceDetail.grand_total)}</span>
-                </div>
-              </div>
-
-              <div className="text-center pt-2 text-[10px] text-muted">
-                Thank you for shopping with Star Enterprises!
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
-              <Button variant="outline" onClick={() => setIsReceiptOpen(false)}>
-                Done
-              </Button>
-              <Button variant="solid" onClick={handlePrintReceipt}>
-                <Printer size={16} /> Print Receipt (80mm)
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+        invoiceDetail={invoiceDetail}
+      />
     </div>
   );
 }

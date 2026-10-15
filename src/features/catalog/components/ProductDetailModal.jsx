@@ -59,6 +59,20 @@ export function ProductDetailModal({ product, isOpen, onClose }) {
           </div>
         </div>
 
+        {/* Product Image Showcase */}
+        {product.image_url && (
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden bg-surface border border-border flex items-center justify-center shadow-sm">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         {/* Pricing Banner */}
         <div className="p-4 rounded-2xl border border-border bg-bg flex items-baseline justify-between flex-wrap gap-2">
           <div>

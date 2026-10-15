@@ -175,8 +175,24 @@ export function InventoryPage() {
               return (
                 <TableRow key={prod.id}>
                   <TableCell>
-                    <div className="font-semibold text-text">{prod.name}</div>
-                    <div className="text-xs text-muted font-mono">{prod.sku}</div>
+                    <div className="flex items-center gap-3">
+                      {prod.image_url && (
+                        <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface flex items-center justify-center">
+                          <img
+                            src={prod.image_url}
+                            alt={prod.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="font-semibold text-text truncate">{prod.name}</div>
+                        <div className="text-xs text-muted font-mono">{prod.sku}</div>
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">{prod.categories?.name || 'Unassigned'}</div>

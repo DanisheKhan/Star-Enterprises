@@ -14,6 +14,7 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
   const [gstRate, setGstRate] = useState('18');
   const [isSerialized, setIsSerialized] = useState(true);
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
 
   async function handleCreateSubmit(e) {
@@ -39,6 +40,7 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
         gst_rate: parseInt(gstRate, 10) || 18,
         is_serialized: isSerialized,
         description: description.trim() || `${name.trim()} available at Star Enterprises.`,
+        image_url: imageUrl.trim() || null,
         is_active: true,
       });
       onClose();
@@ -47,6 +49,7 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
       setSellingPrice('');
       setCostPrice('');
       setDescription('');
+      setImageUrl('');
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -140,6 +143,14 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
           placeholder="Short specifications overview for billing and customer receipts"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <Input
+          id="prod-img"
+          label="Product Image URL (Optional)"
+          placeholder="e.g. /images/products/phone.jpg or https://..."
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
         />
 
         <div className="pt-2 border-t border-border flex justify-end gap-2">

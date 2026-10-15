@@ -93,6 +93,18 @@ export function CartDrawer() {
                 key={product.id}
                 className="p-3.5 border border-border rounded-2xl bg-bg flex gap-3 items-start min-w-0"
               >
+                {product.image_url && (
+                  <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-border bg-surface">
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant="default" className="text-[10px] py-0 px-1.5">

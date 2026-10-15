@@ -226,7 +226,7 @@ export function PublicHomePage() {
               return (
                 <Card
                   key={product.id}
-                  className="p-5 sm:p-6 flex flex-col justify-between space-y-4 hover:border-accent transition-colors min-w-0"
+                  className="group p-5 sm:p-6 flex flex-col justify-between space-y-4 hover:border-accent transition-all min-w-0"
                 >
                   <div className="space-y-3 min-w-0">
                     {/* Top Badges */}
@@ -242,6 +242,29 @@ export function PublicHomePage() {
                         <Badge variant="default" className="text-[10px]">
                           On Order
                         </Badge>
+                      )}
+                    </div>
+
+                    {/* Product Image Preview */}
+                    <div
+                      onClick={() => setActiveModalProduct(product)}
+                      className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-surface/60 border border-border flex items-center justify-center cursor-pointer group-hover:border-accent/60 transition-all shadow-sm"
+                    >
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-muted gap-2 py-8">
+                          {isMobiles ? <Smartphone size={32} className="opacity-30" /> : <Tv size={32} className="opacity-30" />}
+                          <span className="text-[10px] uppercase font-mono tracking-wider opacity-60">{product.sku}</span>
+                        </div>
                       )}
                     </div>
 

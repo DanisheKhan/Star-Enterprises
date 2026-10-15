@@ -24,17 +24,74 @@ img, video, svg, canvas {
   display: block;
 }
 
+/* Print portal visibility */
+@media screen {
+  #print-portal {
+    display: none !important;
+  }
+}
+
 /* Print optimizations for 80mm thermal receipt and A4 GST invoice */
 @media print {
   @page {
     margin: 0;
     size: auto;
   }
-  body {
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
     background-color: #FFFFFF !important;
     color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
+  /* When printing via print-portal, completely hide the interactive application and modals */
+  body:has(#print-portal:not(:empty)) #root,
+  body.printing-portal-active #root {
+    display: none !important;
+  }
+
+  #print-portal:not(:empty),
+  body.printing-portal-active #print-portal {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   .no-print {
     display: none !important;
   }
 }
+
+/* Print bill format containers */
+.bill-container-80mm {
+  width: 76mm;
+  max-width: 76mm;
+  margin: 0 auto;
+  padding: 3mm 2mm;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #000000;
+  background-color: #FFFFFF;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bill-container-normal {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 8mm 10mm;
+  font-family: var(--font, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #000000;
+  background-color: #FFFFFF;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+

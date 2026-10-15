@@ -13,6 +13,7 @@ import {
   TableHeaderCell,
 } from '@/shared/ui';
 import { useInvoices, useInvoiceDetail } from '../hooks/useBilling';
+import { InvoicePrintModal } from '../components/InvoicePrintModal';
 import { formatCurrency, formatDate } from '@/shared/lib/format';
 import { Printer, Eye } from 'lucide-react';
 
@@ -98,95 +99,13 @@ export function InvoicesListPage() {
         </Table>
       )}
 
-      {/* Invoice Detail Modal */}
+      {/* Invoice Detail & Print Modal (80mm + Normal Bill) */}
       {selectedInvoiceId && (
-        <Modal
+        <InvoicePrintModal
           isOpen={Boolean(selectedInvoiceId)}
           onClose={() => setSelectedInvoiceId(null)}
-          title={`Invoice ${invoiceDetail?.invoice_number || ''}`}
-          className="max-w-md"
-        >
-          {detailLoading || !invoiceDetail ? (
-            <div className="py-8 text-center text-muted">Loading invoice details...</div>
-          ) : (
-            <div className="space-y-4">
-              <div className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3">
-                <div className="text-center space-y-1">
-                  <div className="font-bold text-sm">{invoiceDetail.stores?.name}</div>
-                  <div>GSTIN: {invoiceDetail.stores?.gstin}</div>
-                  <div>{invoiceDetail.stores?.address_line1}, {invoiceDetail.stores?.city}</div>
-                </div>
-
-                <div className="border-t border-b border-dashed border-border py-2 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Invoice: {invoiceDetail.invoice_number}</span>
-                    <span>{formatDate(invoiceDetail.created_at)}</span>
-                  </div>
-                  <div>Customer: {invoiceDetail.customer_name}</div>
-                  {invoiceDetail.customer_phone && <div>Phone: {invoiceDetail.customer_phone}</div>}
-                  {invoiceDetail.customer_gstin && <div>Customer GSTIN: {invoiceDetail.customer_gstin}</div>}
-                </div>
-
-                <div className="space-y-1">
-                  {invoiceDetail.items?.map((item, i) => (
-                    <div key={i} className="flex justify-between py-1 border-b border-border/50">
-                      <div>
-                        <div>{item.item_name}</div>
-                        {item.serial_number && (
-                          <div className="text-[10px] text-muted">SN: {item.serial_number}</div>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div>{formatCurrency(item.total_amount)}</div>
-                        <div className="text-[10px] text-muted">Qty: {item.quantity}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="border-t border-dashed border-border pt-2 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Taxable Subtotal</span>
-                    <span>{formatCurrency(invoiceDetail.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>CGST</span>
-                    <span>{formatCurrency(invoiceDetail.cgst_amount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>SGST</span>
-                    <span>{formatCurrency(invoiceDetail.sgst_amount)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-sm pt-1 border-t border-border">
-                    <span>Grand Total</span>
-                    <span>{formatCurrency(invoiceDetail.grand_total)}</span>
-                  </div>
-                </div>
-
-                {invoiceDetail.payments?.length > 0 && (
-                  <div className="border-t border-dashed border-border pt-2 space-y-1">
-                    <span className="font-semibold">Payments:</span>
-                    {invoiceDetail.payments.map((p, i) => (
-                      <div key={i} className="flex justify-between text-muted">
-                        <span className="uppercase">{p.payment_method}</span>
-                        <span>{formatCurrency(p.amount)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setSelectedInvoiceId(null)}>
-                  Close
-                </Button>
-                <Button variant="solid" onClick={() => window.print()}>
-                  <Printer size={16} /> Print Receipt
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal>
+          invoiceDetail={invoiceDetail}
+        />
       )}
     </div>
   );
