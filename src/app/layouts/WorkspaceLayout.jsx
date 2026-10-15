@@ -44,7 +44,7 @@ export function WorkspaceLayout() {
           <div className="flex items-center gap-3">
             <Link
               to="/admin"
-              className="p-1 rounded border border-border text-muted hover:text-text"
+              className="p-2 rounded-full border border-border text-muted hover:text-text hover:bg-bg transition-colors"
               title="Back to Launcher"
             >
               <ArrowLeft size={16} />
@@ -58,13 +58,13 @@ export function WorkspaceLayout() {
           </div>
 
           {/* Workspace Tabs */}
-          <nav className="flex items-center gap-1 overflow-x-auto min-w-0">
+          <nav className="flex items-center gap-2 overflow-x-auto min-w-0">
             <Link
               to={basePath}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors shrink-0 ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
                 isPos
-                  ? 'bg-accent text-accent-fg'
-                  : 'text-muted hover:text-text hover:bg-bg'
+                  ? 'bg-accent text-accent-fg shadow-sm'
+                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
               }`}
             >
               <CreditCard size={14} /> POS Billing
@@ -72,10 +72,10 @@ export function WorkspaceLayout() {
 
             <Link
               to={`${basePath}/inventory`}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors shrink-0 ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
                 isInventory
-                  ? 'bg-accent text-accent-fg'
-                  : 'text-muted hover:text-text hover:bg-bg'
+                  ? 'bg-accent text-accent-fg shadow-sm'
+                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
               }`}
             >
               <Package size={14} /> Inventory & Serials
@@ -84,10 +84,10 @@ export function WorkspaceLayout() {
             {store.code === 'mobiles' && (
               <Link
                 to={`${basePath}/second-hand`}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors shrink-0 ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
                   isSecondHand
-                    ? 'bg-accent text-accent-fg'
-                    : 'text-muted hover:text-text hover:bg-bg'
+                    ? 'bg-accent text-accent-fg shadow-sm'
+                    : 'text-muted hover:text-text hover:bg-bg border border-transparent'
                 }`}
               >
                 <RotateCcw size={14} /> Second-Hand Intake
@@ -96,10 +96,10 @@ export function WorkspaceLayout() {
 
             <Link
               to={`${basePath}/invoices`}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors shrink-0 ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
                 isInvoices
-                  ? 'bg-accent text-accent-fg'
-                  : 'text-muted hover:text-text hover:bg-bg'
+                  ? 'bg-accent text-accent-fg shadow-sm'
+                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
               }`}
             >
               <ReceiptText size={14} /> Invoices

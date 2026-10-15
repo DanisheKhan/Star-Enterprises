@@ -110,7 +110,7 @@ export function InvoicesListPage() {
             <div className="py-8 text-center text-muted">Loading invoice details...</div>
           ) : (
             <div className="space-y-4">
-              <div className="border border-border p-4 rounded bg-surface font-mono text-xs space-y-3">
+              <div className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3">
                 <div className="text-center space-y-1">
                   <div className="font-bold text-sm">{invoiceDetail.stores?.name}</div>
                   <div>GSTIN: {invoiceDetail.stores?.gstin}</div>

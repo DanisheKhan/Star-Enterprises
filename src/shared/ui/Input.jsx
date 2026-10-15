@@ -14,9 +14,9 @@ export const Input = forwardRef(function Input(
   ref
 ) {
   return (
-    <div className="flex flex-col gap-1 w-full text-left">
+    <div className="flex flex-col gap-1.5 w-full text-left">
       {label && (
-        <label htmlFor={id} className="text-sm font-semibold text-text">
+        <label htmlFor={id} className="text-xs font-semibold text-text uppercase tracking-wider">
           {label}
         </label>
       )}
@@ -24,7 +24,7 @@ export const Input = forwardRef(function Input(
         ref={ref}
         id={id}
         className={cn(
-          'w-full min-h-11 rounded border bg-surface px-3 py-2 text-base text-text',
+          'w-full min-h-11 rounded-2xl border bg-surface px-4 py-2.5 text-sm text-text transition-colors',
           'border-border placeholder:text-muted',
           'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent',
           error && 'border-danger focus-visible:outline-danger',
@@ -37,12 +37,12 @@ export const Input = forwardRef(function Input(
         {...rest}
       />
       {hint && !error && (
-        <p id={`${id}-hint`} className="text-sm text-muted">
+        <p id={`${id}-hint`} className="text-xs text-muted">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="text-sm text-danger font-medium">
+        <p id={`${id}-error`} className="text-xs text-danger font-medium">
           {error}
         </p>
       )}

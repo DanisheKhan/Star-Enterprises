@@ -39,7 +39,7 @@ export function LoginForm({ onSuccess }) {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
-          <div className="rounded border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
+          <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
             {error}
           </div>
         )}

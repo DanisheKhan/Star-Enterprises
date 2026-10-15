@@ -1,14 +1,14 @@
 import { cn } from '@/shared/lib/cn';
 
 /**
- * Responsive data table wrapper that isolates horizontal scrolling to its container.
+ * Responsive data table wrapper that isolates horizontal scrolling to its container with rounded-2xl curves.
  * @param {Object} props
  * @param {string} [props.className]
  * @param {import('react').ReactNode} props.children
  */
 export function Table({ className, children, ...rest }) {
   return (
-    <div className="w-full overflow-x-auto rounded border border-border bg-surface min-w-0">
+    <div className="w-full overflow-x-auto rounded-3xl border border-border bg-surface min-w-0">
       <table className={cn('w-full text-left border-collapse text-sm', className)} {...rest}>
         {children}
       </table>
@@ -18,7 +18,7 @@ export function Table({ className, children, ...rest }) {
 
 export function TableHead({ className, children, ...rest }) {
   return (
-    <thead className={cn('bg-bg border-b border-border text-xs uppercase font-semibold text-muted', className)} {...rest}>
+    <thead className={cn('bg-bg/60 border-b border-border text-xs uppercase font-semibold text-muted tracking-wider', className)} {...rest}>
       {children}
     </thead>
   );
@@ -42,7 +42,7 @@ export function TableRow({ className, children, ...rest }) {
 
 export function TableCell({ className, children, ...rest }) {
   return (
-    <td className={cn('px-4 py-3 align-middle', className)} {...rest}>
+    <td className={cn('px-5 py-3.5 align-middle', className)} {...rest}>
       {children}
     </td>
   );
@@ -50,7 +50,7 @@ export function TableCell({ className, children, ...rest }) {
 
 export function TableHeaderCell({ className, children, ...rest }) {
   return (
-    <th className={cn('px-4 py-3 align-middle font-semibold', className)} {...rest}>
+    <th className={cn('px-5 py-3.5 align-middle font-semibold', className)} {...rest}>
       {children}
     </th>
   );

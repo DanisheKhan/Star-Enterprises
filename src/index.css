@@ -11,11 +11,14 @@
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
 
-  --radius-DEFAULT: var(--radius);
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
+  --radius-DEFAULT: 20px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
 
   --font-sans: var(--font);
 }

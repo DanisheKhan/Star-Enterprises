@@ -43,7 +43,7 @@ export function RootLayout() {
                 <select
                   value={currentStoreCode || (location.pathname === '/admin/all' ? 'all' : 'launcher')}
                   onChange={handleStoreChange}
-                  className="text-xs font-semibold bg-bg border border-border rounded px-2 py-1 text-text cursor-pointer"
+                  className="text-xs font-semibold bg-bg border border-border rounded-full px-3.5 py-1.5 text-text cursor-pointer hover:border-accent transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <option value="launcher">Switch Workspace...</option>
                   {stores.map((s) => (

@@ -193,7 +193,7 @@ export function SecondHandIntakePage() {
       >
         <form onSubmit={handleSubmitIntake} className="space-y-5">
           {formError && (
-            <div className="rounded border border-danger/30 bg-danger/10 p-3 text-sm text-danger flex items-center gap-2">
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger flex items-center gap-2">
               <ShieldAlert size={16} />
               <span>{formError}</span>
             </div>
@@ -294,31 +294,34 @@ export function SecondHandIntakePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label className="flex items-center gap-2 border border-border p-3 rounded cursor-pointer">
+              <label className="flex items-center gap-2.5 border border-border p-3.5 rounded-2xl cursor-pointer hover:bg-bg/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={screenOk}
                   onChange={(e) => setScreenOk(e.target.checked)}
+                  className="rounded"
                 />
-                <span className="text-sm">Original Screen</span>
+                <span className="text-sm font-medium">Original Screen</span>
               </label>
 
-              <label className="flex items-center gap-2 border border-border p-3 rounded cursor-pointer">
+              <label className="flex items-center gap-2.5 border border-border p-3.5 rounded-2xl cursor-pointer hover:bg-bg/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={touchOk}
                   onChange={(e) => setTouchOk(e.target.checked)}
+                  className="rounded"
                 />
-                <span className="text-sm">Touch & FaceID OK</span>
+                <span className="text-sm font-medium">Touch & FaceID OK</span>
               </label>
 
-              <label className="flex items-center gap-2 border border-border p-3 rounded cursor-pointer">
+              <label className="flex items-center gap-2.5 border border-border p-3.5 rounded-2xl cursor-pointer hover:bg-bg/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={cameraOk}
                   onChange={(e) => setCameraOk(e.target.checked)}
+                  className="rounded"
                 />
-                <span className="text-sm">Cameras Working</span>
+                <span className="text-sm font-medium">Cameras Working</span>
               </label>
             </div>
 
@@ -383,10 +386,10 @@ export function SecondHandIntakePage() {
           isOpen={Boolean(selectedIntake)}
           onClose={() => setSelectedIntake(null)}
           title="Buyback Purchase Certificate"
-          className="max-w-md"
+          className="max-w-md rounded-3xl"
         >
           <div className="space-y-4">
-            <div className="border border-border p-4 rounded bg-surface font-mono text-xs space-y-3">
+            <div className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3">
               <div className="text-center space-y-1">
                 <div className="font-bold text-sm">{store?.name}</div>
                 <div>Second-Hand Mobile Purchase Voucher</div>

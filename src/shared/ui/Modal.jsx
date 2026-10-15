@@ -3,7 +3,7 @@ import { cn } from '@/shared/lib/cn';
 import { X } from 'lucide-react';
 
 /**
- * Clean accessible modal dialog without glassmorphism or heavy shadows.
+ * Clean accessible modal dialog with modern rounded-2xl curves.
  * @param {Object} props
  * @param {boolean} props.isOpen
  * @param {() => void} props.onClose
@@ -37,18 +37,18 @@ export function Modal({ isOpen, onClose, title, className, children }) {
     >
       <div
         className={cn(
-          'relative w-full max-w-lg rounded border border-border bg-surface p-6 text-text',
-          'max-h-[90vh] overflow-y-auto min-w-0',
+          'relative w-full max-w-lg rounded-3xl border border-border bg-surface p-6 sm:p-8 text-text',
+          'max-h-[90vh] overflow-y-auto min-w-0 shadow-sm',
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
+        <div className="flex items-center justify-between pb-3 border-b border-border mb-5">
           {title && <h3 className="text-lg font-semibold">{title}</h3>}
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-muted hover:text-text rounded transition-opacity cursor-pointer ml-auto"
+            className="p-1.5 text-muted hover:text-text rounded-full hover:bg-bg transition-colors cursor-pointer ml-auto"
             aria-label="Close"
           >
             <X size={18} />

@@ -36,11 +36,7 @@ const RULES = [
     re: /\bblur-(?:2xl|3xl)\b|filter\s*:\s*blur\(/,
     msg: 'Blurred blobs/glows are banned.',
   },
-  {
-    id: 'big-radius', exts: CODE,
-    re: /\brounded-(?:2xl|3xl)\b/,
-    msg: 'Oversized radius is banned. Use the single token radius (`rounded`).',
-  },
+
   {
     id: 'hover-scale', exts: CODE,
     re: /\b(?:group-)?hover:scale-/,

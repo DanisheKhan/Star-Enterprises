@@ -96,7 +96,7 @@ export function InventoryPage() {
 
   if (error) {
     return (
-      <div className="rounded border border-danger/30 bg-danger/10 p-4 text-danger">
+      <div className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-danger">
         {getErrorMessage(error)}
       </div>
     );
@@ -255,7 +255,7 @@ export function InventoryPage() {
           {unitsLoading ? (
             <div className="py-6 text-center text-muted">Loading serialized units...</div>
           ) : units.length === 0 ? (
-            <div className="py-6 text-center text-muted border border-dashed border-border rounded">
+            <div className="py-6 text-center text-muted border border-dashed border-border rounded-2xl">
               No serialized units currently registered for this product.
             </div>
           ) : (
@@ -318,7 +318,7 @@ export function InventoryPage() {
       >
         <form onSubmit={handleAddUnit} className="space-y-4">
           {formError && (
-            <div className="rounded border border-danger/30 bg-danger/10 p-3 text-sm text-danger flex items-center gap-2">
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger flex items-center gap-2">
               <AlertCircle size={16} />
               <span>{formError}</span>
             </div>

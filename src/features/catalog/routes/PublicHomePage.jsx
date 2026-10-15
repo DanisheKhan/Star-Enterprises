@@ -39,7 +39,7 @@ export function PublicHomePage() {
           {/* Mobiles Section Card */}
           <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:border-accent transition-colors">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded border border-border bg-bg flex items-center justify-center text-text">
+              <div className="w-14 h-14 rounded-3xl border border-border bg-bg flex items-center justify-center text-text shadow-sm">
                 <Smartphone size={24} />
               </div>
               <div>
@@ -76,7 +76,7 @@ export function PublicHomePage() {
           {/* Furniture & Electronics Card */}
           <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:border-accent transition-colors">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded border border-border bg-bg flex items-center justify-center text-text">
+              <div className="w-14 h-14 rounded-3xl border border-border bg-bg flex items-center justify-center text-text shadow-sm">
                 <Tv size={24} />
               </div>
               <div>
@@ -114,7 +114,7 @@ export function PublicHomePage() {
 
       {/* Trust & Store Contact Section */}
       <Container size="xl">
-        <div className="border border-border rounded p-6 sm:p-8 bg-surface grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div className="border border-border rounded-3xl p-6 sm:p-8 bg-surface grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-text">
               <MapPin size={18} /> Store Locations

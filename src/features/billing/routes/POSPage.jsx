@@ -289,7 +289,7 @@ export function POSPage() {
             </div>
 
             {cart.length === 0 ? (
-              <div className="py-12 text-center text-muted border border-dashed border-border rounded">
+              <div className="py-12 text-center text-muted border border-dashed border-border rounded-2xl">
                 Cart is empty. Select products from the left to start billing.
               </div>
             ) : (
@@ -311,11 +311,11 @@ export function POSPage() {
 
                       <div className="flex items-center gap-3 shrink-0">
                         {!item.is_serialized ? (
-                          <div className="flex items-center border border-border rounded">
+                          <div className="flex items-center border border-border rounded-full px-1">
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(index, -1)}
-                              className="px-2 py-1 text-muted hover:text-text cursor-pointer"
+                              className="px-2 py-1 text-muted hover:text-text cursor-pointer rounded-full"
                             >
                               <Minus size={12} />
                             </button>
@@ -323,7 +323,7 @@ export function POSPage() {
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(index, 1)}
-                              className="px-2 py-1 text-muted hover:text-text cursor-pointer"
+                              className="px-2 py-1 text-muted hover:text-text cursor-pointer rounded-full"
                             >
                               <Plus size={12} />
                             </button>
@@ -391,11 +391,11 @@ export function POSPage() {
           {unitsLoading ? (
             <div className="py-6 text-center text-muted">Loading available units...</div>
           ) : availableUnits.length === 0 ? (
-            <div className="py-6 text-center text-danger border border-dashed border-danger/30 rounded">
+            <div className="py-6 text-center text-danger border border-dashed border-danger/30 rounded-2xl">
               No in-stock serialized units found for this product.
             </div>
           ) : (
-            <div className="divide-y divide-border border border-border rounded max-h-60 overflow-y-auto">
+            <div className="divide-y divide-border border border-border rounded-2xl max-h-60 overflow-y-auto">
               {availableUnits.map((unit) => (
                 <div
                   key={unit.id}
@@ -428,7 +428,7 @@ export function POSPage() {
       >
         <form onSubmit={handleCheckout} className="space-y-4">
           {checkoutError && (
-            <div className="rounded border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
               {checkoutError}
             </div>
           )}
@@ -465,7 +465,7 @@ export function POSPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMode('cash')}
-                className={`flex flex-col items-center justify-center p-3 rounded border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'cash'
                     ? 'border-accent bg-accent text-accent-fg'
                     : 'border-border bg-surface text-text hover:bg-bg'
@@ -477,7 +477,7 @@ export function POSPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMode('upi')}
-                className={`flex flex-col items-center justify-center p-3 rounded border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'upi'
                     ? 'border-accent bg-accent text-accent-fg'
                     : 'border-border bg-surface text-text hover:bg-bg'
@@ -489,7 +489,7 @@ export function POSPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMode('card')}
-                className={`flex flex-col items-center justify-center p-3 rounded border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'card'
                     ? 'border-accent bg-accent text-accent-fg'
                     : 'border-border bg-surface text-text hover:bg-bg'
@@ -541,7 +541,7 @@ export function POSPage() {
           <div className="space-y-4">
             <div
               id="printable-receipt"
-              className="border border-border p-4 rounded bg-surface font-mono text-xs space-y-3"
+              className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3"
             >
               <div className="text-center space-y-1">
                 <div className="font-bold text-sm">{invoiceDetail.stores?.name}</div>
