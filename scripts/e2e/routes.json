@@ -1,0 +1,12 @@
+[
+  "/",
+  "/admin",
+  "/admin/all",
+  "/admin/mobiles",
+  "/admin/mobiles/inventory",
+  "/admin/mobiles/second-hand",
+  "/admin/mobiles/invoices",
+  "/admin/furniture-electronics",
+  "/admin/furniture-electronics/inventory",
+  "/admin/furniture-electronics/invoices"
+]

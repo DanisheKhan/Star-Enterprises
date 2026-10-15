@@ -1,0 +1,24 @@
+/* styles/tokens.css */
+:root {
+  --bg: #FAFAF9;
+  --surface: #FFFFFF;
+  --text: #171717;
+  --text-muted: #5F5F5F;     /* keep >= 4.5:1 on bg */
+  --border: #E5E5E3;
+  --accent: #171717;         /* ONE accent: refined dark charcoal */
+  --accent-fg: #FAFAF9;      /* text on accent */
+  --danger: #B42318;
+  --radius: 8px;
+  --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0E0E0E;
+  --surface: #151515;
+  --text: #F2F2F0;
+  --text-muted: #A1A1A1;
+  --border: #262626;
+  --accent: #F2F2F0;
+  --accent-fg: #0E0E0E;
+  --danger: #D92D20;
+}
