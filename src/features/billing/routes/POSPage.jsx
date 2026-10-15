@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   Button,
@@ -45,14 +45,29 @@ export function POSPage() {
   const [isUnitSelectorOpen, setIsUnitSelectorOpen] = useState(false);
   const [pendingProduct, setPendingProduct] = useState(null);
 
-  const { data: products = [], isLoading } = useProducts(store?.id, {
-    search,
-  });
+  const { data: products = [], isLoading } = useProducts(store?.id);
+
+  // Instant local filtering without network round trips
+  const filteredProducts = useMemo(() => {
+    if (!search.trim()) return products;
+    const q = search.trim().toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(q) ||
+        p.sku?.toLowerCase().includes(q) ||
+        p.slug?.toLowerCase().includes(q) ||
+        p.brands?.name?.toLowerCase().includes(q) ||
+        p.categories?.name?.toLowerCase().includes(q)
+    );
+  }, [products, search]);
 
   const { data: availableUnits = [], isLoading: unitsLoading } = useProductUnits(
     store?.id,
     pendingProduct?.id,
-    'in_stock'
+    'in_stock',
+    {
+      enabled: Boolean(store?.id && pendingProduct?.id && isUnitSelectorOpen),
+    }
   );
 
   const { data: invoiceDetail, isLoading: invoiceLoading } = useInvoiceDetail(completedInvoiceId);
@@ -221,11 +236,15 @@ export function POSPage() {
             />
           </Card>
 
-          {isLoading ? (
+          {isLoading && products.length === 0 ? (
             <div className="py-12 text-center text-muted">Loading catalog...</div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="py-12 text-center text-muted border border-dashed border-border rounded-2xl">
+              No products found matching "{search}"
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {products.map((prod) => {
+              {filteredProducts.map((prod) => {
                 const qtyOnHand = prod.inventory?.[0]?.quantity_on_hand ?? 0;
                 const inStock = qtyOnHand > 0;
 
@@ -241,6 +260,8 @@ export function POSPage() {
                             <img
                               src={prod.image_url}
                               alt={prod.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -453,16 +474,17 @@ export function POSPage() {
       <Modal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
-        title="Checkout & Payment Split"
+        title="Checkout & Payment Collection"
+        size="lg"
       >
-        <form onSubmit={handleCheckout} className="space-y-4">
+        <form onSubmit={handleCheckout} className="space-y-5">
           {checkoutError && (
-            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3.5 text-sm text-danger font-medium">
               {checkoutError}
             </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             <Input
               id="cust-name"
               label="Customer Name"
@@ -471,61 +493,65 @@ export function POSPage() {
               onChange={(e) => setCustomerName(e.target.value)}
             />
 
-            <Input
-              id="cust-phone"
-              label="Customer Mobile (for GST WhatsApp Receipt)"
-              placeholder="e.g. 9820012345"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <Input
+                id="cust-phone"
+                label="Customer Mobile (WhatsApp Invoice)"
+                placeholder="e.g. 9820012345"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+              />
 
-            <Input
-              id="cust-gstin"
-              label="Customer GSTIN (Optional, for B2B Invoice)"
-              placeholder="e.g. 27ABCDE1234F1Z5"
-              value={customerGstin}
-              onChange={(e) => setCustomerGstin(e.target.value)}
-            />
+              <Input
+                id="cust-gstin"
+                label="Customer GSTIN (Optional B2B)"
+                placeholder="e.g. 27ABCDE1234F1Z5"
+                value={customerGstin}
+                onChange={(e) => setCustomerGstin(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="pt-3 border-t border-border space-y-2">
-            <label className="text-sm font-semibold text-text">Payment Method</label>
-            <div className="grid grid-cols-3 gap-2">
+          <div className="pt-4 border-t border-border space-y-2.5">
+            <label className="text-xs font-semibold text-text uppercase tracking-wider block">
+              Payment Method
+            </label>
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => setPaymentMode('cash')}
-                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'cash'
-                    ? 'border-accent bg-accent text-accent-fg'
+                    ? 'border-accent bg-accent text-accent-fg shadow-sm'
                     : 'border-border bg-surface text-text hover:bg-bg'
                 }`}
               >
-                <Banknote size={20} className="mb-1" />
+                <Banknote size={22} className="mb-1.5" />
                 Cash
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMode('upi')}
-                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'upi'
-                    ? 'border-accent bg-accent text-accent-fg'
+                    ? 'border-accent bg-accent text-accent-fg shadow-sm'
                     : 'border-border bg-surface text-text hover:bg-bg'
                 }`}
               >
-                <QrCode size={20} className="mb-1" />
+                <QrCode size={22} className="mb-1.5" />
                 UPI / QR
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMode('card')}
-                className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-sm font-semibold cursor-pointer transition-colors ${
                   paymentMode === 'card'
-                    ? 'border-accent bg-accent text-accent-fg'
+                    ? 'border-accent bg-accent text-accent-fg shadow-sm'
                     : 'border-border bg-surface text-text hover:bg-bg'
                 }`}
               >
-                <CreditCard size={20} className="mb-1" />
-                Card / EMI
+                <CreditCard size={22} className="mb-1.5" />
+                Card / POS
               </button>
             </div>
           </div>
@@ -541,16 +567,29 @@ export function POSPage() {
             />
           )}
 
-          <div className="pt-3 border-t border-border flex items-center justify-between">
-            <span className="font-semibold text-lg text-text">
-              Total: {formatCurrency(grandTotal)}
-            </span>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsCheckoutOpen(false)}>
+          <div className="pt-4 border-t border-border flex items-center justify-between">
+            <div>
+              <span className="text-xs text-muted block">Final Grand Total</span>
+              <span className="font-bold text-xl sm:text-2xl text-text">
+                {formatCurrency(grandTotal)}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCheckoutOpen(false)}
+                className="px-5 h-11 text-xs font-semibold"
+              >
                 Cancel
               </Button>
-              <Button type="submit" variant="solid" pending={placeSaleMutation.isPending}>
-                Complete Sale
+              <Button
+                type="submit"
+                variant="solid"
+                pending={placeSaleMutation.isPending}
+                className="px-6 h-11 text-xs font-semibold"
+              >
+                Complete Sale & Generate Bill
               </Button>
             </div>
           </div>

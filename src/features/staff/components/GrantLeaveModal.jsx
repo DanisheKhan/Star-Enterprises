@@ -145,7 +145,7 @@ export function GrantLeaveModal({ isOpen, onClose, staffList = [], defaultStaff 
       isOpen={isOpen}
       onClose={onClose}
       title="Grant Staff Leave & Salary Deduction"
-      className="max-w-xl"
+      size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
         {error && (

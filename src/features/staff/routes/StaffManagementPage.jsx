@@ -600,7 +600,7 @@ export function StaffManagementPage() {
           isOpen={Boolean(salaryToPay)}
           onClose={() => setSalaryToPay(null)}
           title={`Disburse Salary: ${salaryToPay.staff_profiles?.full_name}`}
-          className="max-w-md"
+          size="lg"
         >
           <form onSubmit={handleConfirmPayment} className="space-y-4 text-text min-w-0">
             <div className="p-3.5 rounded-2xl border border-border bg-bg space-y-1 text-xs">

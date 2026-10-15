@@ -194,7 +194,7 @@ export function LauncherPage() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         title="Store Owner Sign In"
-        className="max-w-sm rounded-3xl"
+        size="md"
       >
         <LoginForm onSuccess={() => setIsLoginModalOpen(false)} />
       </Modal>

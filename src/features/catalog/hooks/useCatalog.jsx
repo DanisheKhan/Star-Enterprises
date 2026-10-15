@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { listPublicProducts } from '../api/catalog.api';
+import { listPublicProducts, getCachedPublicCatalog } from '../api/catalog.api';
 
 export const CATALOG_QUERY_KEYS = {
   all: ['catalog'],
@@ -11,10 +11,12 @@ export const CATALOG_QUERY_KEYS = {
  * Hook to fetch public products across stores
  */
 export function usePublicProducts(params = {}) {
+  const isDefaultView = !params?.search && (!params?.storeCode || params?.storeCode === 'all') && !params?.categorySlug;
   return useQuery({
     queryKey: CATALOG_QUERY_KEYS.list(params),
     queryFn: () => listPublicProducts(params),
-    staleTime: 1000 * 60 * 3, // 3 minutes
+    placeholderData: () => (isDefaultView ? getCachedPublicCatalog() || undefined : undefined),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

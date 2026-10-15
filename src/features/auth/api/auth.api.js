@@ -37,26 +37,26 @@ export async function getCurrentUser() {
 export async function getUserProfile(userId) {
   if (!userId) return null;
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, full_name, phone, role')
-    .eq('id', userId)
-    .single();
+  const [profileRes, accessRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, phone, role')
+      .eq('id', userId)
+      .single(),
+    supabase
+      .from('staff_store_access')
+      .select('id, store_id, role, is_active')
+      .eq('user_id', userId)
+      .eq('is_active', true),
+  ]);
 
-  if (profileError && profileError.code !== 'PGRST116') {
-    throw profileError;
+  if (profileRes.error && profileRes.error.code !== 'PGRST116') {
+    throw profileRes.error;
   }
-
-  const { data: storeAccess, error: accessError } = await supabase
-    .from('staff_store_access')
-    .select('id, store_id, role, is_active')
-    .eq('user_id', userId)
-    .eq('is_active', true);
-
-  if (accessError) throw accessError;
+  if (accessRes.error) throw accessRes.error;
 
   return {
-    profile: profile || { id: userId, full_name: 'Demo Staff', role: 'owner' },
-    storeAccess: storeAccess || [],
+    profile: profileRes.data || { id: userId, full_name: 'Demo Staff', role: 'owner' },
+    storeAccess: accessRes.data || [],
   };
 }

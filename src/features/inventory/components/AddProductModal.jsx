@@ -60,11 +60,11 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
       isOpen={isOpen}
       onClose={onClose}
       title="Add New Product to Store Catalog"
-      className="max-w-lg"
+      size="lg"
     >
-      <form onSubmit={handleCreateSubmit} className="space-y-4 text-text min-w-0">
+      <form onSubmit={handleCreateSubmit} className="space-y-5 text-text min-w-0">
         {error && (
-          <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-xs text-danger">
+          <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-xs text-danger font-medium">
             {error}
           </div>
         )}
@@ -83,7 +83,7 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
           required
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             id="prod-sku"
             label="Product SKU Code"
@@ -98,13 +98,13 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
             value={isSerialized ? 'serialized' : 'batch'}
             onChange={(e) => setIsSerialized(e.target.value === 'serialized')}
             options={[
-              { value: 'serialized', label: 'Serialized (Unique IMEI / Serial No)' },
-              { value: 'batch', label: 'Quantity Batch (Non-Serialized)' },
+              { value: 'serialized', label: 'Serialized (Unique IMEI / Serial)' },
+              { value: 'batch', label: 'Non-Serialized (Quantity Batch)' },
             ]}
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <Input
             id="prod-selling-price"
             type="number"
@@ -125,7 +125,7 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
           />
           <Select
             id="prod-gst"
-            label="GST Rate"
+            label="GST Tax Rate"
             value={gstRate}
             onChange={(e) => setGstRate(e.target.value)}
             options={[
@@ -153,12 +153,12 @@ export function AddProductModal({ storeId, isOpen, onClose }) {
           onChange={(e) => setImageUrl(e.target.value)}
         />
 
-        <div className="pt-2 border-t border-border flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <div className="pt-3 mt-1 border-t border-border flex items-center justify-end gap-3">
+          <Button type="button" variant="outline" onClick={onClose} className="px-5">
             Cancel
           </Button>
-          <Button type="submit" variant="solid" pending={createProductMutation.isPending} className="gap-1.5">
-            <Plus size={14} /> Add Product to Catalog
+          <Button type="submit" variant="solid" pending={createProductMutation.isPending} className="gap-2 px-5">
+            <Plus size={15} /> Add Product to Catalog
           </Button>
         </div>
       </form>

@@ -1,37 +1,72 @@
 import { supabase } from '@/shared/lib/supabase';
 import { getProductImageUrl } from '@/features/catalog';
 
+const INVENTORY_CACHE_PREFIX = 'star_inv_prods_';
+
+export function getCachedStoreProducts(storeId) {
+  if (!storeId) return null;
+  try {
+    const raw = localStorage.getItem(`${INVENTORY_CACHE_PREFIX}${storeId}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setCachedStoreProducts(storeId, products) {
+  if (!storeId || !products) return;
+  try {
+    if (products.length > 0) {
+      localStorage.setItem(`${INVENTORY_CACHE_PREFIX}${storeId}`, JSON.stringify(products));
+    }
+  } catch {}
+}
+
 /**
  * Lists products for a store with category and inventory count
  */
 export async function listProductsByStore({ storeId, categoryId, search } = {}) {
-  let query = supabase
-    .from('products')
-    .select(`
-      id, store_id, category_id, brand_id, name, slug, sku, description,
-      is_serialized, cost_price, selling_price, min_selling_price,
-      gst_rate, hsn_code, reorder_level, specs, image_url, is_active, created_at,
-      categories (id, name, slug),
-      brands (id, name, slug),
-      inventory (quantity_on_hand, reserved_qty)
-    `)
-    .eq('store_id', storeId)
-    .order('name');
+  try {
+    let query = supabase
+      .from('products')
+      .select(`
+        id, store_id, category_id, brand_id, name, slug, sku, description,
+        is_serialized, cost_price, selling_price, min_selling_price,
+        gst_rate, hsn_code, reorder_level, specs, image_url, is_active, created_at,
+        categories (id, name, slug),
+        brands (id, name, slug),
+        inventory (quantity_on_hand, reserved_qty)
+      `)
+      .eq('store_id', storeId)
+      .order('name');
 
-  if (categoryId) {
-    query = query.eq('category_id', categoryId);
+    if (categoryId) {
+      query = query.eq('category_id', categoryId);
+    }
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const enriched = (data || []).map((p) => ({
+      ...p,
+      image_url: getProductImageUrl(p),
+    }));
+
+    if (!categoryId && !search && enriched.length > 0) {
+      setCachedStoreProducts(storeId, enriched);
+    }
+
+    return enriched;
+  } catch (err) {
+    console.warn('Network error querying inventory by store, using cached:', err);
+    const cached = getCachedStoreProducts(storeId);
+    if (cached) return cached;
+    throw err;
   }
-
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data || []).map((p) => ({
-    ...p,
-    image_url: getProductImageUrl(p),
-  }));
 }
 
 /**

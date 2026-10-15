@@ -1,10 +1,155 @@
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { useStores } from '@/features/stores';
 import { useCart, CartDrawer } from '@/features/catalog';
 import { Container, Button } from '@/shared/ui';
 import { SITE } from '@/shared/lib/site';
-import { LogOut, LayoutGrid, ShoppingBag, LogIn, Phone, Shield } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
+import { LogOut, LayoutGrid, ShoppingBag, LogIn, Phone, Shield, Store, Users, ChevronDown, Check } from 'lucide-react';
+
+function StoreSwitcher({ stores, currentStoreCode, isOwner, onSelect }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Determine current active item label
+  let activeLabel = 'Switch Workspace...';
+  if (location.pathname === '/admin/all') {
+    activeLabel = '★ All Stores Combined';
+  } else if (location.pathname.startsWith('/admin/staff')) {
+    activeLabel = 'Staff Management';
+  } else if (currentStoreCode) {
+    const store = stores.find((s) => s.code === currentStoreCode);
+    if (store) activeLabel = store.name;
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={cn(
+          'flex items-center gap-2 text-xs font-semibold bg-bg border border-border rounded-full px-3.5 py-1.5 text-text cursor-pointer',
+          'hover:border-text/40 transition-all select-none',
+          isOpen && 'border-accent ring-1 ring-accent shadow-sm'
+        )}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <Store size={13} className="text-muted shrink-0" />
+        <span className="truncate max-w-[150px] sm:max-w-[210px]">{activeLabel}</span>
+        <ChevronDown
+          size={13}
+          className={cn('text-muted transition-transform duration-200 shrink-0', isOpen && 'rotate-180 text-text')}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1.5 w-64 bg-surface border border-border rounded-2xl shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+          <div className="px-3 py-1.5 text-[10px] font-bold text-muted uppercase tracking-wider">
+            Switch Store Workspace
+          </div>
+          <div className="space-y-0.5">
+            {stores.map((s) => {
+              const isSelected = currentStoreCode === s.code;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => {
+                    onSelect(s.code);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs text-left cursor-pointer transition-colors select-none',
+                    isSelected ? 'bg-bg font-semibold text-text' : 'text-text hover:bg-bg/80'
+                  )}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Store size={14} className={isSelected ? 'text-accent shrink-0' : 'text-muted shrink-0'} />
+                    <span className="truncate">{s.name}</span>
+                  </div>
+                  {isSelected && <Check size={14} className="text-text shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="my-1.5 border-t border-border" />
+
+          <div className="space-y-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                onSelect('staff');
+                setIsOpen(false);
+              }}
+              className={cn(
+                'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs text-left cursor-pointer transition-colors select-none',
+                location.pathname.startsWith('/admin/staff') ? 'bg-bg font-semibold text-text' : 'text-text hover:bg-bg/80'
+              )}
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Users size={14} className="text-muted shrink-0" />
+                <span>Staff Management (HRMS)</span>
+              </div>
+              {location.pathname.startsWith('/admin/staff') && <Check size={14} className="text-text shrink-0" />}
+            </button>
+
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect('all');
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs text-left cursor-pointer transition-colors select-none',
+                  location.pathname === '/admin/all' ? 'bg-bg font-semibold text-text' : 'text-text hover:bg-bg/80'
+                )}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <span className="text-accent text-xs">★</span>
+                  <span>All Stores Combined</span>
+                </div>
+                {location.pathname === '/admin/all' && <Check size={14} className="text-text shrink-0" />}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                onSelect('launcher');
+                setIsOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-left cursor-pointer text-muted hover:text-text hover:bg-bg/80 transition-colors select-none"
+            >
+              <LayoutGrid size={14} className="shrink-0" />
+              <span>Workspace Launcher</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function RootLayout() {
   const navigate = useNavigate();
@@ -19,8 +164,7 @@ export function RootLayout() {
   const currentStoreMatch = location.pathname.match(/\/admin\/([^/]+)/);
   const currentStoreCode = currentStoreMatch ? currentStoreMatch[1] : null;
 
-  function handleStoreChange(e) {
-    const code = e.target.value;
+  function handleStoreChange(code) {
     if (code === 'launcher') {
       navigate('/admin');
     } else if (code === 'all') {
@@ -51,20 +195,12 @@ export function RootLayout() {
             {!isPublicPage && stores.length > 0 && (
               <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-border">
                 <span className="text-xs text-muted">Store:</span>
-                <select
-                  value={currentStoreCode || (location.pathname === '/admin/all' ? 'all' : 'launcher')}
-                  onChange={handleStoreChange}
-                  className="text-xs font-semibold bg-bg border border-border rounded-full px-3.5 py-1.5 text-text cursor-pointer hover:border-accent transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-                >
-                  <option value="launcher">Switch Workspace...</option>
-                  {stores.map((s) => (
-                    <option key={s.id} value={s.code}>
-                      {s.name}
-                    </option>
-                  ))}
-                  <option value="staff">Staff Management (HRMS)</option>
-                  {isOwner && <option value="all">★ All Stores Combined</option>}
-                </select>
+                <StoreSwitcher
+                  stores={stores}
+                  currentStoreCode={currentStoreCode}
+                  isOwner={isOwner}
+                  onSelect={handleStoreChange}
+                />
               </div>
             )}
           </div>
@@ -165,7 +301,9 @@ export function RootLayout() {
 
       {/* Main Content Area */}
       <main className="flex-1 min-w-0">
-        <Outlet />
+        <Suspense fallback={<div className="py-20 text-center text-muted">Loading page...</div>}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Cart Drawer for Public Browsing */}

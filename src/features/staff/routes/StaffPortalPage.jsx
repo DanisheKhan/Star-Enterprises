@@ -322,7 +322,7 @@ export function StaffPortalPage() {
         isOpen={isLeaveModalOpen}
         onClose={() => setIsLeaveModalOpen(false)}
         title="Apply for Store Leave"
-        className="max-w-md"
+        size="lg"
       >
         <form onSubmit={handleLeaveSubmit} className="space-y-4 text-text min-w-0">
           {formError && (

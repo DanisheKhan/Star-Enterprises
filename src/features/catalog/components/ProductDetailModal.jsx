@@ -29,7 +29,7 @@ export function ProductDetailModal({ product, isOpen, onClose }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={product.name} className="max-w-xl">
+    <Modal isOpen={isOpen} onClose={onClose} title={product.name} size="xl">
       <div className="space-y-6 text-text min-w-0">
         {/* Brand & Store Header */}
         <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-border">

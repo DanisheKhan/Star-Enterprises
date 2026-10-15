@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Button, Input, Select } from '@/shared/ui';
+import { Modal, Button, Input, Select, Badge } from '@/shared/ui';
 import { useAdjustStock } from '../hooks/useInventory';
 import { getErrorMessage } from '@/shared/lib/errors';
 import { Sliders } from 'lucide-react';
@@ -38,61 +38,94 @@ function StockAdjustmentForm({ product, storeId, onClose }) {
   }
 
   return (
-    <form onSubmit={handleAdjustSubmit} className="space-y-4 text-text min-w-0">
+    <form onSubmit={handleAdjustSubmit} className="space-y-5 text-text min-w-0">
       {error && (
-        <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-xs text-danger">
+        <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3.5 text-xs text-danger font-medium">
           {error}
         </div>
       )}
 
-      <div className="p-3.5 rounded-2xl border border-border bg-bg space-y-1 text-xs">
-        <div className="flex justify-between">
-          <span className="text-muted">Current Stock on Hand:</span>
-          <span className="font-semibold text-text">{currentQty} units</span>
+      {/* Structured Product Summary Card */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl border border-border bg-bg/60">
+        <div>
+          <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">
+            Current Stock on Hand
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold text-text">{currentQty}</span>
+            <span className="text-xs text-muted">units</span>
+          </div>
         </div>
-        <div className="flex justify-between text-muted">
-          <span>SKU Code:</span>
-          <span className="font-mono text-text">{product.sku}</span>
+        <div>
+          <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">
+            Product SKU
+          </span>
+          <span className="font-mono text-xs font-semibold text-text bg-surface px-2.5 py-1 rounded-lg border border-border inline-block">
+            {product.sku}
+          </span>
+        </div>
+        <div>
+          <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1">
+            Tracking Mode
+          </span>
+          <Badge variant="outline" className="text-xs">
+            {product.is_serialized ? 'Serialized (Unique IMEI)' : 'Standard Batch'}
+          </Badge>
         </div>
       </div>
 
-      <Input
-        id="new-stock-qty"
-        type="number"
-        label="New Verified Quantity on Hand"
-        value={newQty}
-        onChange={(e) => setNewQty(e.target.value)}
-        required
-      />
+      {/* Adjustment Form Inputs in 2-Column Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          id="new-stock-qty"
+          type="number"
+          label="New Verified Quantity on Hand"
+          placeholder="0"
+          value={newQty}
+          onChange={(e) => setNewQty(e.target.value)}
+          required
+        />
 
-      <Select
-        id="adjust-reason"
-        label="Reason for Adjustment"
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-        options={[
-          { value: 'restock', label: 'New Stock Restock / Shipment Received' },
-          { value: 'audit_reconcile', label: 'Physical Store Inventory Audit Count' },
-          { value: 'damage', label: 'Damaged / Defective Stock Write-Off' },
-          { value: 'theft', label: 'Missing / Lost Stock Write-Off' },
-          { value: 'return', label: 'Customer RMA / Store Return' },
-        ]}
-      />
+        <Select
+          id="adjust-reason"
+          label="Reason for Adjustment"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          options={[
+            { value: 'restock', label: 'New Stock Restock / Shipment Received' },
+            { value: 'audit_reconcile', label: 'Physical Store Inventory Audit Count' },
+            { value: 'damage', label: 'Damaged / Defective Stock Write-Off' },
+            { value: 'theft', label: 'Missing / Lost Stock Write-Off' },
+            { value: 'return', label: 'Customer RMA / Store Return' },
+          ]}
+        />
+      </div>
 
       <Input
         id="adjust-notes"
-        label="Adjustment Notes / Invoice Ref"
-        placeholder="e.g. Verified by Store Owner during physical audit"
+        label="Adjustment Notes / Invoice Ref (Optional)"
+        placeholder="e.g. Verified during physical audit count by store manager"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />
 
-      <div className="pt-2 border-t border-border flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onClose}>
+      {/* Modal Actions */}
+      <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="px-6 h-11 text-xs font-semibold"
+        >
           Cancel
         </Button>
-        <Button type="submit" variant="solid" pending={adjustMutation.isPending} className="gap-1.5">
-          <Sliders size={14} /> Update Stock Level
+        <Button
+          type="submit"
+          variant="solid"
+          pending={adjustMutation.isPending}
+          className="gap-2 px-6 h-11 text-xs font-semibold"
+        >
+          <Sliders size={15} /> Update Stock Level
         </Button>
       </div>
     </form>
@@ -107,7 +140,7 @@ export function StockAdjustmentModal({ product, storeId, isOpen, onClose }) {
       isOpen={isOpen}
       onClose={onClose}
       title={`Adjust Stock: ${product.name}`}
-      className="max-w-md"
+      size="lg"
     >
       <StockAdjustmentForm
         key={product.id}

@@ -32,7 +32,7 @@ export function LeaveActionModal({ leave, isOpen, onClose }) {
       isOpen={isOpen}
       onClose={onClose}
       title={`Review Leave: ${staff?.full_name}`}
-      className="max-w-lg"
+      size="lg"
     >
       <div className="space-y-5 text-text min-w-0">
         {error && (

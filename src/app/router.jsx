@@ -1,14 +1,17 @@
+import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RootLayout } from './layouts/RootLayout';
 import { WorkspaceLayout } from './layouts/WorkspaceLayout';
-import { LauncherPage } from '@/features/launcher';
-import { POSPage, InvoicesListPage } from '@/features/billing';
-import { InventoryPage } from '@/features/inventory';
-import { SecondHandIntakePage } from '@/features/second-hand';
-import { OwnerDashboardPage } from '@/features/reports';
-import { PublicHomePage } from '@/features/catalog';
-import { LoginPage } from '@/features/auth';
-import { StaffManagementPage } from '@/features/staff';
+
+const PublicHomePage = lazy(() => import('@/features/catalog').then((m) => ({ default: m.PublicHomePage })));
+const LoginPage = lazy(() => import('@/features/auth').then((m) => ({ default: m.LoginPage })));
+const LauncherPage = lazy(() => import('@/features/launcher').then((m) => ({ default: m.LauncherPage })));
+const OwnerDashboardPage = lazy(() => import('@/features/reports').then((m) => ({ default: m.OwnerDashboardPage })));
+const StaffManagementPage = lazy(() => import('@/features/staff').then((m) => ({ default: m.StaffManagementPage })));
+const POSPage = lazy(() => import('@/features/billing').then((m) => ({ default: m.POSPage })));
+const InvoicesListPage = lazy(() => import('@/features/billing').then((m) => ({ default: m.InvoicesListPage })));
+const InventoryPage = lazy(() => import('@/features/inventory').then((m) => ({ default: m.InventoryPage })));
+const SecondHandIntakePage = lazy(() => import('@/features/second-hand').then((m) => ({ default: m.SecondHandIntakePage })));
 
 export const router = createBrowserRouter([
   {

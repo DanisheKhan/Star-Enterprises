@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   Button,
@@ -20,7 +20,7 @@ import { EditPricingModal } from '../components/EditPricingModal';
 import { AddProductModal } from '../components/AddProductModal';
 import { formatCurrency } from '@/shared/lib/format';
 import { getErrorMessage } from '@/shared/lib/errors';
-import { Plus, Sliders, Tag, AlertCircle } from 'lucide-react';
+import { Plus, Sliders, Tag, AlertCircle, Eye } from 'lucide-react';
 
 export function InventoryPage() {
   const { store } = useOutletContext();
@@ -40,15 +40,15 @@ export function InventoryPage() {
   const [purchaseCost, setPurchaseCost] = useState('');
   const [formError, setFormError] = useState('');
 
-  const { data: products = [], isLoading, error } = useProducts(store?.id, {
-    search,
-    categoryId: selectedCategory || undefined,
-  });
+  const { data: products = [], isLoading, error } = useProducts(store?.id);
 
   const { data: units = [], isLoading: unitsLoading } = useProductUnits(
     store?.id,
     selectedProduct?.id,
-    null
+    null,
+    {
+      enabled: Boolean(store?.id && selectedProduct?.id && isUnitModalOpen),
+    }
   );
 
   const createUnitMutation = useCreateProductUnit();
@@ -80,19 +80,42 @@ export function InventoryPage() {
     }
   }
 
-  // Derive unique categories from products
-  const categoryOptions = [
-    { value: '', label: 'All Categories' },
-    ...Array.from(
-      new Map(
-        products
-          .filter((p) => p.categories)
-          .map((p) => [p.categories.id, { value: p.categories.id, label: p.categories.name }])
-      ).values()
-    ),
-  ];
+  // Derive unique categories from full products list
+  const categoryOptions = useMemo(
+    () => [
+      { value: '', label: 'All Categories' },
+      ...Array.from(
+        new Map(
+          products
+            .filter((p) => p.categories)
+            .map((p) => [p.categories.id, { value: p.categories.id, label: p.categories.name }])
+        ).values()
+      ),
+    ],
+    [products]
+  );
 
-  if (isLoading) {
+  // Fast client-side filter
+  const filteredProducts = useMemo(() => {
+    let list = products;
+    if (selectedCategory) {
+      list = list.filter(
+        (p) => p.category_id === selectedCategory || p.categories?.id === selectedCategory
+      );
+    }
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.sku?.toLowerCase().includes(q) ||
+          p.slug?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [products, selectedCategory, search]);
+
+  if (isLoading && products.length === 0) {
     return (
       <div className="py-12 text-center text-muted">
         Loading inventory for {store?.name}...
@@ -168,26 +191,35 @@ export function InventoryPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((prod) => {
-              const qtyOnHand = prod.inventory?.[0]?.quantity_on_hand ?? 0;
-              const isLowStock = qtyOnHand <= prod.reorder_level;
+            {filteredProducts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted">
+                  No products found matching filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredProducts.map((prod) => {
+                const qtyOnHand = prod.inventory?.[0]?.quantity_on_hand ?? 0;
+                const isLowStock = qtyOnHand <= prod.reorder_level;
 
-              return (
-                <TableRow key={prod.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {prod.image_url && (
-                        <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface flex items-center justify-center">
-                          <img
-                            src={prod.image_url}
-                            alt={prod.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
+                return (
+                  <TableRow key={prod.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {prod.image_url && (
+                          <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface flex items-center justify-center">
+                            <img
+                              src={prod.image_url}
+                              alt={prod.name}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
                       <div className="min-w-0">
                         <div className="font-semibold text-text truncate">{prod.name}</div>
                         <div className="text-xs text-muted font-mono">{prod.sku}</div>
@@ -195,8 +227,10 @@ export function InventoryPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{prod.categories?.name || 'Unassigned'}</div>
-                    <div className="text-xs text-muted">{prod.brands?.name || '-'}</div>
+                    <div className="text-sm font-medium text-text">{prod.categories?.name || 'Unassigned'}</div>
+                    {prod.brands?.name && prod.brands.name !== '-' && (
+                      <div className="text-xs text-muted font-normal mt-0.5">{prod.brands.name}</div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="font-semibold">{formatCurrency(prod.selling_price)}</div>
@@ -226,12 +260,12 @@ export function InventoryPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                    <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap whitespace-nowrap">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setProductToAdjust(prod)}
-                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
                         title="Adjust physical stock quantity"
                       >
                         <Sliders size={12} /> Stock
@@ -240,7 +274,7 @@ export function InventoryPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setProductToEditPrice(prod)}
-                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
                         title="Edit price & GST"
                       >
                         <Tag size={12} /> Price
@@ -254,9 +288,10 @@ export function InventoryPage() {
                               setSelectedProduct(prod);
                               setIsUnitModalOpen(true);
                             }}
-                            className="text-xs py-1 px-2.5 cursor-pointer"
+                            className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
+                            title="View Serial / IMEI Units"
                           >
-                            Units
+                            <Eye size={12} /> Units
                           </Button>
                           <Button
                             variant="solid"
@@ -266,6 +301,7 @@ export function InventoryPage() {
                               setIsAddUnitOpen(true);
                             }}
                             className="text-xs py-1 px-2.5 gap-1 cursor-pointer"
+                            title="Add Single Serialized Unit"
                           >
                             <Plus size={12} /> Unit
                           </Button>
@@ -275,7 +311,7 @@ export function InventoryPage() {
                   </TableCell>
                 </TableRow>
               );
-            })}
+            }))}
           </TableBody>
         </Table>
       )}
@@ -285,11 +321,11 @@ export function InventoryPage() {
         isOpen={isUnitModalOpen}
         onClose={() => setIsUnitModalOpen(false)}
         title={`Units for ${selectedProduct?.name}`}
-        className="max-w-2xl"
+        size="xl"
       >
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-xs sm:text-sm text-muted">
               Track individual serial numbers, battery health, and warranty status.
             </p>
             <Button
@@ -299,41 +335,42 @@ export function InventoryPage() {
                 setIsUnitModalOpen(false);
                 setIsAddUnitOpen(true);
               }}
+              className="gap-1.5 shrink-0"
             >
               <Plus size={14} /> Add New Unit
             </Button>
           </div>
 
           {unitsLoading ? (
-            <div className="py-6 text-center text-muted">Loading serialized units...</div>
+            <div className="py-8 text-center text-muted">Loading serialized units...</div>
           ) : units.length === 0 ? (
-            <div className="py-6 text-center text-muted border border-dashed border-border rounded-2xl">
+            <div className="py-8 text-center text-muted border border-dashed border-border rounded-2xl">
               No serialized units currently registered for this product.
             </div>
           ) : (
-            <Table>
+            <Table containerClassName="rounded-2xl border border-border shadow-none">
               <TableHead>
                 <TableRow>
-                  <TableHeaderCell>Serial / IMEI</TableHeaderCell>
-                  <TableHeaderCell>Condition</TableHeaderCell>
-                  {store?.code === 'mobiles' && <TableHeaderCell>Battery</TableHeaderCell>}
-                  <TableHeaderCell>Status</TableHeaderCell>
-                  <TableHeaderCell>Warranty</TableHeaderCell>
+                  <TableHeaderCell className="w-48">Serial / IMEI</TableHeaderCell>
+                  <TableHeaderCell className="w-24">Condition</TableHeaderCell>
+                  {store?.code === 'mobiles' && <TableHeaderCell className="w-24">Battery</TableHeaderCell>}
+                  <TableHeaderCell className="w-28">Status</TableHeaderCell>
+                  <TableHeaderCell className="w-28">Warranty</TableHeaderCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {units.map((unit) => (
                   <TableRow key={unit.id}>
-                    <TableCell className="font-mono text-xs font-semibold">
+                    <TableCell className="font-mono text-xs font-semibold text-text">
                       {unit.serial_number}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={unit.condition_grade === 'new' ? 'success' : 'default'}>
+                      <Badge variant={unit.condition_grade === 'new' ? 'success' : 'default'} className="text-[10px]">
                         {unit.condition_grade}
                       </Badge>
                     </TableCell>
                     {store?.code === 'mobiles' && (
-                      <TableCell className="text-sm">
+                      <TableCell className="text-xs text-text">
                         {unit.battery_health ? `${unit.battery_health}%` : '-'}
                       </TableCell>
                     )}
@@ -346,11 +383,12 @@ export function InventoryPage() {
                             ? 'accent'
                             : 'danger'
                         }
+                        className="text-[10px]"
                       >
                         {unit.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm">{unit.warranty_months} Months</TableCell>
+                    <TableCell className="text-xs text-muted">{unit.warranty_months} Mos</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -367,64 +405,72 @@ export function InventoryPage() {
           setFormError('');
         }}
         title={`Add Serialized Unit - ${selectedProduct?.name}`}
+        size="lg"
       >
-        <form onSubmit={handleAddUnit} className="space-y-4">
+        <form onSubmit={handleAddUnit} className="space-y-5">
           {formError && (
-            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger flex items-center gap-2">
+            <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3.5 text-sm text-danger flex items-center gap-2">
               <AlertCircle size={16} />
               <span>{formError}</span>
             </div>
           )}
 
-          <Input
-            id="unit-serial"
-            label={store?.code === 'mobiles' ? 'IMEI Number (15 digits)' : 'Serial Number'}
-            placeholder={store?.code === 'mobiles' ? 'e.g. 358941091234567' : 'e.g. SNY2026TV001'}
-            value={newSerial}
-            onChange={(e) => setNewSerial(e.target.value)}
-            required
-            autoFocus
-          />
-
-          <Select
-            id="condition-grade"
-            label="Condition Grade"
-            options={[
-              { value: 'new', label: 'Brand New (Sealed Pack)' },
-              { value: 'A+', label: 'Pre-Owned Grade A+ (Like New, Flawless)' },
-              { value: 'A', label: 'Pre-Owned Grade A (Minor Micro-Scratches)' },
-              { value: 'B', label: 'Pre-Owned Grade B (Visible Wear & Tear)' },
-              { value: 'C', label: 'Pre-Owned Grade C (Heavy Usage / Budget)' },
-              { value: 'refurbished', label: 'Certified Refurbished' },
-            ]}
-            value={conditionGrade}
-            onChange={(e) => setConditionGrade(e.target.value)}
-          />
-
-          {store?.code === 'mobiles' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              id="battery-health"
-              label="Battery Health Percentage (0 - 100)"
-              type="number"
-              min="1"
-              max="100"
-              value={batteryHealth}
-              onChange={(e) => setBatteryHealth(e.target.value)}
+              id="unit-serial"
+              label={store?.code === 'mobiles' ? 'IMEI Number (15 digits)' : 'Serial Number'}
+              placeholder={store?.code === 'mobiles' ? 'e.g. 358941091234567' : 'e.g. SNY2026TV001'}
+              value={newSerial}
+              onChange={(e) => setNewSerial(e.target.value)}
+              required
+              autoFocus
             />
-          )}
 
-          <Input
-            id="purchase-cost"
-            label="Purchase Cost (₹)"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="e.g. 45000"
-            value={purchaseCost}
-            onChange={(e) => setPurchaseCost(e.target.value)}
-          />
+            <Select
+              id="condition-grade"
+              label="Condition Grade"
+              options={[
+                { value: 'new', label: 'Brand New (Sealed Pack)' },
+                { value: 'A+', label: 'Pre-Owned Grade A+ (Like New, Flawless)' },
+                { value: 'A', label: 'Pre-Owned Grade A (Minor Micro-Scratches)' },
+                { value: 'B', label: 'Pre-Owned Grade B (Visible Wear & Tear)' },
+                { value: 'C', label: 'Pre-Owned Grade C (Heavy Usage / Budget)' },
+                { value: 'refurbished', label: 'Certified Refurbished' },
+              ]}
+              value={conditionGrade}
+              onChange={(e) => setConditionGrade(e.target.value)}
+            />
+          </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {store?.code === 'mobiles' ? (
+              <Input
+                id="battery-health"
+                label="Battery Health Percentage (0 - 100)"
+                type="number"
+                min="1"
+                max="100"
+                placeholder="e.g. 92"
+                value={batteryHealth}
+                onChange={(e) => setBatteryHealth(e.target.value)}
+              />
+            ) : (
+              <div />
+            )}
+
+            <Input
+              id="purchase-cost"
+              label="Purchase Cost Price (₹)"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 45000"
+              value={purchaseCost}
+              onChange={(e) => setPurchaseCost(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"
@@ -432,10 +478,16 @@ export function InventoryPage() {
                 setIsAddUnitOpen(false);
                 setFormError('');
               }}
+              className="px-6 h-11 text-xs font-semibold"
             >
               Cancel
             </Button>
-            <Button type="submit" variant="solid" pending={createUnitMutation.isPending}>
+            <Button
+              type="submit"
+              variant="solid"
+              pending={createUnitMutation.isPending}
+              className="px-6 h-11 text-xs font-semibold"
+            >
               Register Unit to Stock
             </Button>
           </div>

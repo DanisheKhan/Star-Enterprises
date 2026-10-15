@@ -345,6 +345,30 @@ const FALLBACK_PRODUCTS = [
   },
 ];
 
+const PUBLIC_CATALOG_CACHE_KEY = 'star_public_catalog_cache';
+
+export function getCachedPublicCatalog() {
+  try {
+    const raw = localStorage.getItem(PUBLIC_CATALOG_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return FALLBACK_PRODUCTS.map((p) => ({
+    ...p,
+    image_url: getProductImageUrl(p),
+  }));
+}
+
+export function setCachedPublicCatalog(products) {
+  try {
+    if (products && products.length > 0) {
+      localStorage.setItem(PUBLIC_CATALOG_CACHE_KEY, JSON.stringify(products));
+    }
+  } catch {}
+}
+
 /**
  * Lists all active public products across all stores with optional filtering
  *
@@ -388,6 +412,10 @@ export async function listPublicProducts({ storeCode = 'all', categorySlug = '',
       ...p,
       image_url: getProductImageUrl(p),
     }));
+
+    if (!search && enriched.length > 0) {
+      setCachedPublicCatalog(enriched);
+    }
 
     // Filter by storeCode if specified
     let filtered = enriched;

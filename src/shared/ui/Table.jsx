@@ -1,14 +1,20 @@
 import { cn } from '@/shared/lib/cn';
 
 /**
- * Responsive data table wrapper that isolates horizontal scrolling to its container with rounded-2xl curves.
+ * Responsive data table wrapper that isolates horizontal scrolling to its container with rounded curves.
  * @param {Object} props
  * @param {string} [props.className]
+ * @param {string} [props.containerClassName]
  * @param {import('react').ReactNode} props.children
  */
-export function Table({ className, children, ...rest }) {
+export function Table({ className, containerClassName, children, ...rest }) {
   return (
-    <div className="w-full overflow-x-auto rounded-3xl border border-border bg-surface min-w-0">
+    <div
+      className={cn(
+        'w-full overflow-x-auto rounded-2xl sm:rounded-3xl border border-border bg-surface min-w-0 shadow-sm',
+        containerClassName
+      )}
+    >
       <table className={cn('w-full text-left border-collapse text-sm', className)} {...rest}>
         {children}
       </table>
@@ -18,7 +24,13 @@ export function Table({ className, children, ...rest }) {
 
 export function TableHead({ className, children, ...rest }) {
   return (
-    <thead className={cn('bg-bg/60 border-b border-border text-xs uppercase font-semibold text-muted tracking-wider', className)} {...rest}>
+    <thead
+      className={cn(
+        'bg-bg/70 border-b border-border text-[11px] sm:text-xs uppercase font-semibold text-muted tracking-wider select-none',
+        className
+      )}
+      {...rest}
+    >
       {children}
     </thead>
   );
@@ -42,7 +54,7 @@ export function TableRow({ className, children, ...rest }) {
 
 export function TableCell({ className, children, ...rest }) {
   return (
-    <td className={cn('px-5 py-3.5 align-middle', className)} {...rest}>
+    <td className={cn('px-3.5 sm:px-4 py-3 align-middle', className)} {...rest}>
       {children}
     </td>
   );
@@ -50,7 +62,7 @@ export function TableCell({ className, children, ...rest }) {
 
 export function TableHeaderCell({ className, children, ...rest }) {
   return (
-    <th className={cn('px-5 py-3.5 align-middle font-semibold', className)} {...rest}>
+    <th className={cn('px-3.5 sm:px-4 py-3 align-middle font-semibold whitespace-nowrap', className)} {...rest}>
       {children}
     </th>
   );

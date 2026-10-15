@@ -27,22 +27,40 @@ export function PublicHomePage() {
   const [recentlyAddedId, setRecentlyAddedId] = useState(null);
 
   const { addToCart } = useCart();
-  const { data: products = [], isLoading } = usePublicProducts({
-    storeCode: selectedStore,
-    categorySlug: selectedCategory,
-    search,
-  });
+  const { data: allProducts = [], isLoading } = usePublicProducts();
 
   // Unique categories derived from current products
   const availableCategories = useMemo(() => {
     const map = new Map();
-    products.forEach((p) => {
+    allProducts.forEach((p) => {
       if (p.categories?.slug && p.categories?.name) {
         map.set(p.categories.slug, p.categories.name);
       }
     });
     return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [products]);
+  }, [allProducts]);
+
+  // Instant local filtering without network round trips
+  const products = useMemo(() => {
+    let list = allProducts;
+    if (selectedStore && selectedStore !== 'all') {
+      list = list.filter((p) => p.stores?.code === selectedStore);
+    }
+    if (selectedCategory) {
+      list = list.filter((p) => p.categories?.slug === selectedCategory);
+    }
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.sku?.toLowerCase().includes(q) ||
+          p.brands?.name?.toLowerCase().includes(q) ||
+          p.categories?.name?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [allProducts, selectedStore, selectedCategory, search]);
 
   function handleAddToCart(e, product) {
     e.stopPropagation();
@@ -190,7 +208,7 @@ export function PublicHomePage() {
 
       {/* Live Product Cards Grid */}
       <Container size="xl">
-        {isLoading ? (
+        {isLoading && allProducts.length === 0 ? (
           <div className="py-24 text-center space-y-3">
             <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin mx-auto" />
             <p className="text-sm text-muted">Loading live inventory from stores...</p>

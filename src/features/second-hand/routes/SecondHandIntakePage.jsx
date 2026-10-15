@@ -189,7 +189,7 @@ export function SecondHandIntakePage() {
           setFormError('');
         }}
         title="Second-Hand Mobile Intake Form"
-        className="max-w-2xl"
+        size="lg"
       >
         <form onSubmit={handleSubmitIntake} className="space-y-5">
           {formError && (
@@ -386,7 +386,7 @@ export function SecondHandIntakePage() {
           isOpen={Boolean(selectedIntake)}
           onClose={() => setSelectedIntake(null)}
           title="Buyback Purchase Certificate"
-          className="max-w-md rounded-3xl"
+          size="lg"
         >
           <div className="space-y-4">
             <div className="border border-border p-5 rounded-2xl bg-surface font-mono text-xs space-y-3">

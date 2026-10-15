@@ -6,6 +6,7 @@ import {
   createProduct,
   adjustInventoryStock,
   updateProductPricing,
+  getCachedStoreProducts,
 } from '../api/inventory.api';
 
 export const inventoryKeys = {
@@ -15,18 +16,24 @@ export const inventoryKeys = {
 };
 
 export function useProducts(storeId, filters = {}) {
+  const hasFilters = Boolean(filters?.search || filters?.categoryId);
   return useQuery({
     queryKey: inventoryKeys.products(storeId, filters),
     queryFn: () => listProductsByStore({ storeId, ...filters }),
+    placeholderData: () => (!hasFilters ? getCachedStoreProducts(storeId) || undefined : undefined),
     enabled: Boolean(storeId),
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-export function useProductUnits(storeId, productId = null, status = null) {
+export function useProductUnits(storeId, productId = null, status = null, options = {}) {
+  const isEnabled = options.enabled !== undefined ? Boolean(storeId && options.enabled) : Boolean(storeId);
   return useQuery({
     queryKey: inventoryKeys.units(storeId, productId, status),
     queryFn: () => listProductUnits({ storeId, productId, status }),
-    enabled: Boolean(storeId),
+    enabled: isEnabled,
+    staleTime: 1000 * 60 * 2,
+    ...options,
   });
 }
 

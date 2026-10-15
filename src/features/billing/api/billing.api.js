@@ -43,35 +43,33 @@ export async function listInvoices({ storeId, limit = 20 } = {}) {
  * Fetches complete invoice with items and payments for receipt printing
  */
 export async function getInvoiceDetail(invoiceId) {
-  const { data: invoice, error: invError } = await supabase
-    .from('invoices')
-    .select(`
-      id, store_id, invoice_number, financial_year, customer_name, customer_phone, customer_gstin,
-      subtotal, discount_amount, cgst_amount, sgst_amount, grand_total, status, created_at,
-      stores (id, name, gstin, address_line1, city, pincode, phone, email)
-    `)
-    .eq('id', invoiceId)
-    .single();
+  const [invRes, itemsRes, payRes] = await Promise.all([
+    supabase
+      .from('invoices')
+      .select(`
+        id, store_id, invoice_number, financial_year, customer_name, customer_phone, customer_gstin,
+        subtotal, discount_amount, cgst_amount, sgst_amount, grand_total, status, created_at,
+        stores (id, name, gstin, address_line1, city, pincode, phone, email)
+      `)
+      .eq('id', invoiceId)
+      .single(),
+    supabase
+      .from('order_items')
+      .select('id, product_id, unit_id, item_name, serial_number, hsn_code, quantity, unit_price, discount, taxable_value, gst_rate, cgst_amount, sgst_amount, total_amount')
+      .eq('invoice_id', invoiceId),
+    supabase
+      .from('payments')
+      .select('id, payment_method, amount, reference_number')
+      .eq('invoice_id', invoiceId),
+  ]);
 
-  if (invError) throw invError;
-
-  const { data: items, error: itemsError } = await supabase
-    .from('order_items')
-    .select('id, product_id, unit_id, item_name, serial_number, hsn_code, quantity, unit_price, discount, taxable_value, gst_rate, cgst_amount, sgst_amount, total_amount')
-    .eq('invoice_id', invoiceId);
-
-  if (itemsError) throw itemsError;
-
-  const { data: payments, error: payError } = await supabase
-    .from('payments')
-    .select('id, payment_method, amount, reference_number')
-    .eq('invoice_id', invoiceId);
-
-  if (payError) throw payError;
+  if (invRes.error) throw invRes.error;
+  if (itemsRes.error) throw itemsRes.error;
+  if (payRes.error) throw payRes.error;
 
   return {
-    ...invoice,
-    items: items || [],
-    payments: payments || [],
+    ...invRes.data,
+    items: itemsRes.data || [],
+    payments: payRes.data || [],
   };
 }
