@@ -9,6 +9,9 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [storeAccess, setStoreAccess] = useState([]);
   const [_loading, setLoading] = useState(true);
+  
+  // Default demo role to 'owner' so user can immediately test both workspaces in dev
+  const [demoRole, setDemoRole] = useState('owner');
 
   async function loadUserData(sessionUser) {
     if (!sessionUser) {
@@ -50,22 +53,43 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const isOwner = profile?.role === 'owner';
+  // Effective profile: real auth session if present, otherwise demo profile
+  const effectiveProfile = user
+    ? profile
+    : {
+        id: 'demo-user',
+        full_name: demoRole === 'owner' ? 'Store Owner (Admin)' : 'Staff Cashier',
+        role: demoRole,
+      };
+
+  const isOwner = effectiveProfile?.role === 'owner';
 
   function canAccessStore(storeId) {
     if (isOwner) return true;
+    if (!user) {
+      // In demo mode without session, allow all access unless set to locked
+      return demoRole !== 'locked';
+    }
     return storeAccess.some((sa) => sa.store_id === storeId);
   }
 
   const value = {
     user,
-    profile,
+    profile: effectiveProfile,
     storeAccess,
     isOwner,
     canAccessStore,
+    demoRole,
+    setDemoRole,
     loading: _loading,
     signIn: apiSignIn,
-    signOut: apiSignOut,
+    signOut: async () => {
+      if (user) {
+        await apiSignOut();
+      }
+      setUser(null);
+      setProfile(null);
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Badge } from '@/shared/ui';
+import { Card, Button, Badge, Modal } from '@/shared/ui';
 import { useStores } from '@/features/stores';
-import { useAuth } from '@/features/auth';
-import { Smartphone, Tv, Store, ArrowRight } from 'lucide-react';
+import { useAuth, LoginForm } from '@/features/auth';
+import { Smartphone, Tv, Store, ArrowRight, UserCheck, LogIn } from 'lucide-react';
 
 export function LauncherPage() {
   const navigate = useNavigate();
-  const { isOwner, canAccessStore, profile } = useAuth();
+  const { isOwner, canAccessStore, profile, demoRole, setDemoRole, user } = useAuth();
   const { data: stores = [], isLoading } = useStores();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   function handleStartStore(store) {
     navigate(`/admin/${store.code}`);
@@ -38,6 +40,55 @@ export function LauncherPage() {
           Logged in as <span className="font-semibold text-text">{profile?.full_name || 'Staff Member'}</span>{' '}
           ({profile?.role || 'cashier'}). Select your assigned branch workspace to begin operations.
         </p>
+
+        {/* Demo Role Switcher Bar for Pair Programming & Testing */}
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+          <span className="text-xs text-muted flex items-center gap-1">
+            <UserCheck size={14} /> Active Persona:
+          </span>
+          <button
+            type="button"
+            onClick={() => setDemoRole('owner')}
+            className={`px-2.5 py-1 text-xs rounded border cursor-pointer font-medium transition-colors ${
+              demoRole === 'owner'
+                ? 'bg-accent text-accent-fg border-accent'
+                : 'bg-surface text-text border-border hover:bg-bg'
+            }`}
+          >
+            Owner (All Access)
+          </button>
+          <button
+            type="button"
+            onClick={() => setDemoRole('mobiles_cashier')}
+            className={`px-2.5 py-1 text-xs rounded border cursor-pointer font-medium transition-colors ${
+              demoRole === 'mobiles_cashier'
+                ? 'bg-accent text-accent-fg border-accent'
+                : 'bg-surface text-text border-border hover:bg-bg'
+            }`}
+          >
+            Mobiles Cashier
+          </button>
+          <button
+            type="button"
+            onClick={() => setDemoRole('fe_cashier')}
+            className={`px-2.5 py-1 text-xs rounded border cursor-pointer font-medium transition-colors ${
+              demoRole === 'fe_cashier'
+                ? 'bg-accent text-accent-fg border-accent'
+                : 'bg-surface text-text border-border hover:bg-bg'
+            }`}
+          >
+            Furniture Cashier
+          </button>
+          {!user && (
+            <button
+              type="button"
+              onClick={() => setIsLoginModalOpen(true)}
+              className="px-2.5 py-1 text-xs rounded border border-border text-muted hover:text-text cursor-pointer ml-2 flex items-center gap-1"
+            >
+              <LogIn size={12} /> Sign In
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Two Master Buttons / Workspace Cards */}
@@ -140,6 +191,16 @@ export function LauncherPage() {
           </Button>
         </Card>
       )}
+
+      {/* Sign In Modal */}
+      <Modal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        title="Staff Sign In"
+        className="max-w-sm"
+      >
+        <LoginForm onSuccess={() => setIsLoginModalOpen(false)} />
+      </Modal>
     </div>
   );
 }

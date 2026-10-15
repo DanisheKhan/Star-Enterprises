@@ -59,10 +59,15 @@ security definer
 set search_path = ''
 as $$
 declare
+  v_uid uuid := (select auth.uid());
   v_role text;
 begin
+  if v_uid is null then
+    return false;
+  end if;
+
   -- Global owner check
-  select role into v_role from public.profiles where id = (select auth.uid());
+  select role into v_role from public.profiles where id = v_uid;
   if v_role = 'owner' then
     return true;
   end if;
@@ -71,14 +76,14 @@ begin
   if p_required_roles is null then
     return exists (
       select 1 from public.staff_store_access
-      where user_id = (select auth.uid()) 
+      where user_id = v_uid 
         and store_id = p_store_id 
         and is_active = true
     );
   else
     return exists (
       select 1 from public.staff_store_access
-      where user_id = (select auth.uid()) 
+      where user_id = v_uid 
         and store_id = p_store_id 
         and is_active = true
         and role = any(p_required_roles)
@@ -87,8 +92,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.user_has_store_access(uuid, text[]) from public, anon;
-grant execute on function public.user_has_store_access(uuid, text[]) to authenticated;
+grant execute on function public.user_has_store_access(uuid, text[]) to anon, authenticated;
 
 -- Helper to check if current user is owner
 create or replace function public.is_owner()
@@ -97,16 +101,20 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_uid uuid := (select auth.uid());
 begin
+  if v_uid is null then
+    return false;
+  end if;
   return exists (
     select 1 from public.profiles 
-    where id = (select auth.uid()) and role = 'owner'
+    where id = v_uid and role = 'owner'
   );
 end;
 $$;
 
-revoke execute on function public.is_owner() from public, anon;
-grant execute on function public.is_owner() to authenticated;
+grant execute on function public.is_owner() to anon, authenticated;
 
 -- 5. TRIGGER FOR NEW AUTH USERS -> PROFILES
 create or replace function public.handle_new_user()
