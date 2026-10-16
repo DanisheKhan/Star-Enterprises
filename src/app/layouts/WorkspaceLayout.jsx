@@ -1,7 +1,16 @@
 import { useParams, Outlet, Link, useLocation } from 'react-router-dom';
 import { useStore } from '@/features/stores';
 import { Container } from '@/shared/ui';
-import { CreditCard, Package, RotateCcw, ReceiptText, ArrowLeft } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
+import {
+  CreditCard,
+  Package,
+  RotateCcw,
+  ReceiptText,
+  ArrowLeft,
+  Smartphone,
+  Store,
+} from 'lucide-react';
 
 export function WorkspaceLayout() {
   const { storeCode } = useParams();
@@ -40,69 +49,94 @@ export function WorkspaceLayout() {
     <div>
       {/* Store Navigation Subheader (Sticky below top bar) */}
       <div className="border-b border-border bg-surface sticky top-14 z-30 no-print shadow-xs">
-        <Container size="xl" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 min-w-0">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <Container size="xl" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2.5 min-w-0">
+          {/* Left: Launcher Breadcrumb & Store Identity */}
+          <div className="flex items-center gap-3 min-w-0">
             <Link
               to="/admin"
-              className="p-1.5 sm:p-2 rounded-full border border-border text-muted hover:text-text hover:bg-bg transition-colors shrink-0"
-              title="Back to Launcher"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-bg text-muted hover:text-text hover:bg-surface transition-colors text-xs font-semibold shrink-0"
+              title="Return to Launcher"
             >
-              <ArrowLeft size={15} />
+              <ArrowLeft size={13} />
+              <span className="hidden sm:inline">Launcher</span>
             </Link>
-            <div className="min-w-0">
-              <h2 className="text-sm sm:text-base font-semibold text-text truncate">{store.name}</h2>
-              <p className="text-[10px] sm:text-[11px] text-muted truncate">
-                GSTIN: {store.gstin} • Prefix: {store.invoice_prefix}
-              </p>
+
+            <div className="h-5 w-px bg-border shrink-0" />
+
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-bg border border-border flex items-center justify-center text-text shrink-0">
+                {store.code === 'mobiles' ? <Smartphone size={16} /> : <Store size={16} />}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-sm font-bold text-text truncate leading-tight">
+                    {store.name}
+                  </h2>
+                  <span className="hidden md:inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-bg border border-border text-muted">
+                    {store.invoice_prefix}
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-muted truncate">
+                  GSTIN: <span className="font-mono text-text/80">{store.gstin}</span>
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Workspace Tabs */}
-          <nav className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 w-full sm:w-auto pb-1 sm:pb-0">
+          {/* Right: Modern Segmented Tab Capsule */}
+          <nav className="inline-flex items-center p-1 rounded-xl bg-bg border border-border overflow-x-auto min-w-0 max-w-full">
             <Link
               to={basePath}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all select-none whitespace-nowrap shrink-0',
                 isPos
-                  ? 'bg-accent text-accent-fg shadow-sm'
-                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
-              }`}
+                  ? 'bg-surface text-text shadow-xs border border-border/80'
+                  : 'text-muted hover:text-text hover:bg-surface/50 border border-transparent'
+              )}
             >
-              <CreditCard size={14} /> POS Billing
+              <CreditCard size={13} className={isPos ? 'text-accent' : 'text-muted'} />
+              <span>POS Billing</span>
             </Link>
 
             <Link
               to={`${basePath}/inventory`}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all select-none whitespace-nowrap shrink-0',
                 isInventory
-                  ? 'bg-accent text-accent-fg shadow-sm'
-                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
-              }`}
+                  ? 'bg-surface text-text shadow-xs border border-border/80'
+                  : 'text-muted hover:text-text hover:bg-surface/50 border border-transparent'
+              )}
             >
-              <Package size={14} /> Inventory & Serials
+              <Package size={13} className={isInventory ? 'text-accent' : 'text-muted'} />
+              <span>Inventory & Serials</span>
             </Link>
 
             {store.code === 'mobiles' && (
               <Link
                 to={`${basePath}/second-hand`}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all select-none whitespace-nowrap shrink-0',
                   isSecondHand
-                    ? 'bg-accent text-accent-fg shadow-sm'
-                    : 'text-muted hover:text-text hover:bg-bg border border-transparent'
-                }`}
+                    ? 'bg-surface text-text shadow-xs border border-border/80'
+                    : 'text-muted hover:text-text hover:bg-surface/50 border border-transparent'
+                )}
               >
-                <RotateCcw size={14} /> Second-Hand Intake
+                <RotateCcw size={13} className={isSecondHand ? 'text-accent' : 'text-muted'} />
+                <span>Second-Hand Intake</span>
               </Link>
             )}
 
             <Link
               to={`${basePath}/invoices`}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors shrink-0 ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all select-none whitespace-nowrap shrink-0',
                 isInvoices
-                  ? 'bg-accent text-accent-fg shadow-sm'
-                  : 'text-muted hover:text-text hover:bg-bg border border-transparent'
-              }`}
+                  ? 'bg-surface text-text shadow-xs border border-border/80'
+                  : 'text-muted hover:text-text hover:bg-surface/50 border border-transparent'
+              )}
             >
-              <ReceiptText size={14} /> Invoices
+              <ReceiptText size={13} className={isInvoices ? 'text-accent' : 'text-muted'} />
+              <span>Invoices</span>
             </Link>
           </nav>
         </Container>

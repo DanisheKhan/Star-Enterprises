@@ -273,7 +273,7 @@ export function PublicHomePage() {
                           src={product.image_url}
                           alt={product.name}
                           loading="lazy"
-                          className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+                          className="absolute inset-0 w-full h-full object-cover block transition-opacity duration-300 group-hover:opacity-90"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}

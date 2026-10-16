@@ -207,13 +207,13 @@ export function InventoryPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {prod.image_url && (
-                          <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface flex items-center justify-center">
+                          <div className="relative w-10 h-10 shrink-0 rounded-lg overflow-hidden border border-border bg-surface">
                             <img
                               src={prod.image_url}
                               alt={prod.name}
                               loading="lazy"
                               decoding="async"
-                              className="w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-cover block"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                               }}

@@ -94,11 +94,11 @@ export function CartDrawer() {
                 className="p-3.5 border border-border rounded-2xl bg-bg flex gap-3 items-start min-w-0"
               >
                 {product.image_url && (
-                  <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-border bg-surface">
+                  <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-border bg-surface">
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover block"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}

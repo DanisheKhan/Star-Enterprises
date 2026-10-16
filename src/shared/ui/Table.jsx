@@ -11,7 +11,7 @@ export function Table({ className, containerClassName, children, ...rest }) {
   return (
     <div
       className={cn(
-        'w-full overflow-x-auto rounded-2xl sm:rounded-3xl border border-border bg-surface min-w-0 shadow-sm',
+        'w-full overflow-x-auto rounded-xl border border-border bg-surface min-w-0 shadow-xs',
         containerClassName
       )}
     >

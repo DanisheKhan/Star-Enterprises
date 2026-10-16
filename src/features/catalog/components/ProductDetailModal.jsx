@@ -65,7 +65,7 @@ export function ProductDetailModal({ product, isOpen, onClose }) {
             <img
               src={product.image_url}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover block"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
