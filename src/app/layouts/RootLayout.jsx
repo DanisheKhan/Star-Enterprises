@@ -54,7 +54,7 @@ function StoreSwitcher({ stores, currentStoreCode, isOwner, onSelect }) {
         aria-expanded={isOpen}
       >
         <Store size={13} className="text-muted shrink-0" />
-        <span className="truncate max-w-[150px] sm:max-w-[210px]">{activeLabel}</span>
+        <span className="truncate max-w-36 sm:max-w-52">{activeLabel}</span>
         <ChevronDown
           size={13}
           className={cn('text-muted transition-transform duration-200 shrink-0', isOpen && 'rotate-180 text-text')}
@@ -62,7 +62,7 @@ function StoreSwitcher({ stores, currentStoreCode, isOwner, onSelect }) {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-64 bg-surface border border-border rounded-2xl shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute left-0 top-full mt-1.5 w-64 bg-surface border border-border rounded-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 shadow-sm">
           <div className="px-3 py-1.5 text-[10px] font-bold text-muted uppercase tracking-wider">
             Switch Store Workspace
           </div>

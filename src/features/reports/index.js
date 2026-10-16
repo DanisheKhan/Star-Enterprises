@@ -1,3 +1,4 @@
 export { OwnerDashboardPage } from './routes/OwnerDashboardPage';
-export { useOwnerOverview, reportKeys } from './hooks/useReports';
-export { getOwnerOverview } from './api/reports.api';
+export { useOwnerOverview, useOwnerDashboard, reportKeys } from './hooks/useReports';
+export { getOwnerOverview, getOwnerDashboardData } from './api/reports.api';
+

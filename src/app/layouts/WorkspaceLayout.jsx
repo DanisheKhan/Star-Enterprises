@@ -39,7 +39,7 @@ export function WorkspaceLayout() {
   return (
     <div>
       {/* Store Navigation Subheader (Sticky below top bar) */}
-      <div className="border-b border-border bg-surface/95 backdrop-blur-md sticky top-14 z-30 no-print shadow-xs">
+      <div className="border-b border-border bg-surface sticky top-14 z-30 no-print shadow-xs">
         <Container size="xl" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 min-w-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link

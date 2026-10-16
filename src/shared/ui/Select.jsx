@@ -266,7 +266,7 @@ export function Select({
             zIndex: 99999,
           }}
           className={cn(
-            'rounded-2xl border border-border bg-surface text-text shadow-2xl p-1.5',
+            'rounded-2xl border border-border bg-surface text-text shadow-sm p-1.5',
             'overflow-y-auto animate-in fade-in-0 duration-150',
             coords.openAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2',
             'focus:outline-none'

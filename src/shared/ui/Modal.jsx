@@ -44,15 +44,15 @@ export function Modal({ isOpen, onClose, title, size = 'lg', className, children
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in-0 duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 animate-in fade-in-0 duration-150"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       <div
         className={cn(
-          'relative w-full rounded-3xl border border-border bg-surface text-text',
-          'max-h-[92vh] flex flex-col min-w-0 shadow-2xl animate-in zoom-in-95 duration-150',
+          'relative w-full rounded-2xl border border-border bg-surface text-text',
+          'max-h-[92vh] flex flex-col min-w-0 shadow-sm animate-in zoom-in-95 duration-150',
           resolvedSizeClass,
           className
         )}
