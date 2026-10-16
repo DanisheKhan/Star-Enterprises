@@ -164,7 +164,23 @@ export function SecondHandIntakePage() {
                   {formatCurrency(intake.agreed_price)}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="accent">{intake.status}</Badge>
+                  <Badge
+                    variant={
+                      intake.status === 'added_to_stock'
+                        ? 'success'
+                        : intake.status === 'rejected'
+                        ? 'danger'
+                        : 'accent'
+                    }
+                  >
+                    {intake.status === 'intake_completed'
+                      ? 'Intake Completed'
+                      : intake.status === 'added_to_stock'
+                      ? 'In Stock'
+                      : intake.status === 'rejected'
+                      ? 'Rejected'
+                      : 'Draft'}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <Button

@@ -51,7 +51,9 @@ export function setCachedStores(stores) {
     if (stores && stores.length > 0) {
       localStorage.setItem(STORES_CACHE_KEY, JSON.stringify(stores));
     }
-  } catch {}
+  } catch {
+    // Ignore localStorage write error
+  }
 }
 
 /**

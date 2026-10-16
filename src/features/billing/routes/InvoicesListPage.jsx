@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Badge,
-  Modal,
   Table,
   TableHead,
   TableBody,
@@ -15,14 +14,14 @@ import {
 import { useInvoices, useInvoiceDetail } from '../hooks/useBilling';
 import { InvoicePrintModal } from '../components/InvoicePrintModal';
 import { formatCurrency, formatDate } from '@/shared/lib/format';
-import { Printer, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 export function InvoicesListPage() {
   const { store } = useOutletContext();
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
   const { data: invoices = [], isLoading } = useInvoices(store?.id);
-  const { data: invoiceDetail, isLoading: detailLoading } = useInvoiceDetail(selectedInvoiceId);
+  const { data: invoiceDetail } = useInvoiceDetail(selectedInvoiceId);
 
   return (
     <div className="space-y-6">

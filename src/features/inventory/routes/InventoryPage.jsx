@@ -261,25 +261,7 @@ export function InventoryPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap whitespace-nowrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setProductToAdjust(prod)}
-                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
-                        title="Adjust physical stock quantity"
-                      >
-                        <Sliders size={12} /> Stock
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setProductToEditPrice(prod)}
-                        className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
-                        title="Edit price & GST"
-                      >
-                        <Tag size={12} /> Price
-                      </Button>
-                      {prod.is_serialized && (
+                      {prod.is_serialized ? (
                         <>
                           <Button
                             variant="outline"
@@ -304,6 +286,36 @@ export function InventoryPage() {
                             title="Add Single Serialized Unit"
                           >
                             <Plus size={12} /> Unit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setProductToEditPrice(prod)}
+                            className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
+                            title="Edit price & GST"
+                          >
+                            <Tag size={12} /> Price
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setProductToAdjust(prod)}
+                            className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
+                            title="Adjust physical stock quantity"
+                          >
+                            <Sliders size={12} /> Stock
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setProductToEditPrice(prod)}
+                            className="text-xs py-1 px-2.5 gap-1 cursor-pointer hover:bg-bg"
+                            title="Edit price & GST"
+                          >
+                            <Tag size={12} /> Price
                           </Button>
                         </>
                       )}

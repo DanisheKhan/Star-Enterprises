@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal, Button, Input, Select } from '@/shared/ui';
 import { useGrantStaffLeave } from '../hooks/useStaff';
 import { formatCurrency } from '@/shared/lib/format';
 import { getErrorMessage } from '@/shared/lib/errors';
-import { Calendar, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
+import { IndianRupee, AlertCircle, CheckCircle } from 'lucide-react';
 
 /**
  * GrantLeaveModal allows the store owner to grant leave (e.g. 15-20 days)
@@ -18,45 +18,23 @@ import { Calendar, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
 export function GrantLeaveModal({ isOpen, onClose, staffList = [], defaultStaff = null }) {
   const grantLeaveMutation = useGrantStaffLeave();
 
-  const [selectedStaffId, setSelectedStaffId] = useState('');
+  const [internalStaffId, setInternalStaffId] = useState('');
   const [leaveType, setLeaveType] = useState('unpaid'); // 'unpaid' | 'extended' | 'paid' | 'sick'
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(() => {
+    const f = new Date();
+    f.setDate(f.getDate() + 14);
+    return f.toISOString().split('T')[0];
+  });
   const [totalDays, setTotalDays] = useState('15');
   const [deductSalary, setDeductSalary] = useState(true);
   const [reason, setReason] = useState('');
-  const [payrollMonth, setPayrollMonth] = useState('2026-10');
+  const [payrollMonth] = useState('2026-10');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Set initial dates and default staff when opened
-  useEffect(() => {
-    if (isOpen) {
-      setError('');
-      setSuccessMsg('');
-      const today = new Date();
-      const startStr = today.toISOString().split('T')[0];
-
-      // Default to 15 days duration
-      const future = new Date(today);
-      future.setDate(future.getDate() + 14);
-      const endStr = future.toISOString().split('T')[0];
-
-      setStartDate(startStr);
-      setEndDate(endStr);
-      setTotalDays('15');
-      setDeductSalary(true);
-      setLeaveType('unpaid');
-      setPayrollMonth('2026-10');
-
-      if (defaultStaff?.id) {
-        setSelectedStaffId(defaultStaff.id);
-      } else if (staffList.length > 0 && !selectedStaffId) {
-        setSelectedStaffId(staffList[0].id);
-      }
-    }
-  }, [isOpen, defaultStaff, staffList]);
-
+  const selectedStaffId = internalStaffId || defaultStaff?.id || staffList[0]?.id || '';
+  const setSelectedStaffId = setInternalStaffId;
   const activeStaff = staffList.find((s) => s.id === selectedStaffId) || defaultStaff || staffList[0];
 
   // Auto-calculate end date when totalDays is entered
@@ -250,10 +228,10 @@ export function GrantLeaveModal({ isOpen, onClose, staffList = [], defaultStaff 
         </div>
 
         {/* Live Salary Deduction Calculator Card */}
-        <div className="p-4 rounded-2xl border border-border bg-surface text-xs space-y-2.5">
+        <div className="p-4 rounded-xl border border-border bg-surface text-xs space-y-2.5">
           <div className="flex items-center justify-between pb-2 border-b border-border">
             <div className="flex items-center gap-2">
-              <DollarSign size={16} className="text-text" />
+              <IndianRupee size={16} className="text-text" />
               <span className="font-semibold text-text text-sm">
                 Salary Deduction Calculator
               </span>

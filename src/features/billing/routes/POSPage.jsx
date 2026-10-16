@@ -10,14 +10,14 @@ import {
 import { useProducts, useProductUnits } from '@/features/inventory';
 import { usePlaceSale, useInvoiceDetail } from '../hooks/useBilling';
 import { InvoicePrintModal } from '../components/InvoicePrintModal';
-import { formatCurrency, formatDate } from '@/shared/lib/format';
+import { formatCurrency } from '@/shared/lib/format';
 import { getErrorMessage } from '@/shared/lib/errors';
 import {
   ShoppingCart,
   Trash2,
   Plus,
   Minus,
-  Printer,
+  Search,
   QrCode,
   CreditCard,
   Banknote,
@@ -70,7 +70,7 @@ export function POSPage() {
     }
   );
 
-  const { data: invoiceDetail, isLoading: invoiceLoading } = useInvoiceDetail(completedInvoiceId);
+  const { data: invoiceDetail } = useInvoiceDetail(completedInvoiceId);
 
   const placeSaleMutation = usePlaceSale();
 
@@ -226,15 +226,16 @@ export function POSPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
         {/* Left: Product Catalog & Search (7 Cols) */}
         <div className="lg:col-span-7 space-y-4 min-w-0">
-          <Card className="p-4">
+          <div className="relative">
             <Input
               id="pos-search"
-              placeholder="Search by name, SKU, or model..."
+              placeholder="Search by product name, SKU, or model..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full"
+              className="w-full pl-9 bg-surface"
             />
-          </Card>
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+          </div>
 
           {isLoading && products.length === 0 ? (
             <div className="py-12 text-center text-muted">Loading catalog...</div>
@@ -271,7 +272,9 @@ export function POSPage() {
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-1">
-                            <span className="font-semibold text-text line-clamp-1">{prod.name}</span>
+                            <span className="font-semibold text-text line-clamp-2 min-h-10 leading-tight">
+                              {prod.name}
+                            </span>
                             {prod.is_serialized && (
                               <Badge variant="accent" className="text-[10px] shrink-0">
                                 {store.code === 'mobiles' ? 'IMEI' : 'Serial'}

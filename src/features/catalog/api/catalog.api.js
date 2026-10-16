@@ -354,7 +354,9 @@ export function getCachedPublicCatalog() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-  } catch {}
+  } catch {
+    // Ignore localStorage parse error
+  }
   return FALLBACK_PRODUCTS.map((p) => ({
     ...p,
     image_url: getProductImageUrl(p),
@@ -366,7 +368,9 @@ export function setCachedPublicCatalog(products) {
     if (products && products.length > 0) {
       localStorage.setItem(PUBLIC_CATALOG_CACHE_KEY, JSON.stringify(products));
     }
-  } catch {}
+  } catch {
+    // Ignore localStorage write error
+  }
 }
 
 /**

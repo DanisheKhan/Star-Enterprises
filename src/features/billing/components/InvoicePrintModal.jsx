@@ -15,17 +15,16 @@ import { Printer, X } from 'lucide-react';
  * @param {Object} props.invoiceDetail
  */
 export function InvoicePrintModal({ isOpen, onClose, invoiceDetail }) {
-  const [printPortalNode, setPrintPortalNode] = useState(null);
-
-  useEffect(() => {
+  const [printPortalNode] = useState(() => {
+    if (typeof document === 'undefined') return null;
     let portal = document.getElementById('print-portal');
-    if (!portal && typeof document !== 'undefined') {
+    if (!portal) {
       portal = document.createElement('div');
       portal.id = 'print-portal';
       document.body.appendChild(portal);
     }
-    setPrintPortalNode(portal);
-  }, []);
+    return portal;
+  });
 
   // Handle ESC key and scroll lock
   useEffect(() => {

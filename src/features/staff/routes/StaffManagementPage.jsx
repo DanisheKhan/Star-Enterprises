@@ -187,32 +187,8 @@ export function StaffManagementPage() {
       {/* TAB 1: STAFF DIRECTORY */}
       {activeTab === 'directory' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted">
-            <span>Showing active staff members across Star Mobiles and Furniture</span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setGrantStaffTarget(null);
-                  setIsGrantLeaveOpen(true);
-                }}
-                className="text-xs gap-1.5"
-              >
-                <Calendar size={13} /> Grant Leave
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setStaffToEdit(null);
-                  setIsStaffModalOpen(true);
-                }}
-                className="text-xs gap-1.5"
-              >
-                <Plus size={13} /> Add Employee
-              </Button>
-            </div>
+          <div className="text-xs text-muted">
+            Showing active staff members across Star Mobiles and Furniture
           </div>
 
           {staffLoading ? (
@@ -237,7 +213,7 @@ export function StaffManagementPage() {
                   <TableHeaderCell>Code</TableHeaderCell>
                   <TableHeaderCell>Employee Name</TableHeaderCell>
                   <TableHeaderCell>Role & Store</TableHeaderCell>
-                  <TableHeaderCell>Contact & Gmail</TableHeaderCell>
+                  <TableHeaderCell>Contact & Email</TableHeaderCell>
                   <TableHeaderCell>Base Salary / Per Day</TableHeaderCell>
                   <TableHeaderCell>Annual Quota</TableHeaderCell>
                   <TableHeaderCell>Status</TableHeaderCell>
@@ -506,7 +482,7 @@ export function StaffManagementPage() {
                     <TableCell>
                       <div className="text-xs text-danger font-medium">-{formatCurrency(sal.deductions)}</div>
                       {sal.notes && (
-                        <div className="text-[10px] text-muted truncate max-w-36" title={sal.notes}>
+                        <div className="text-[10px] text-muted max-w-xs leading-normal mt-0.5" title={sal.notes}>
                           {sal.notes}
                         </div>
                       )}
@@ -517,7 +493,7 @@ export function StaffManagementPage() {
                     <TableCell>
                       {sal.payment_status === 'paid' ? (
                         <Badge variant="success" className="text-[10px] gap-1">
-                          <CheckCircle size={11} /> Paid ({sal.payment_method?.toUpperCase()})
+                          <CheckCircle size={11} /> Paid ({sal.payment_method?.toLowerCase() === 'bank_transfer' ? 'Bank Transfer' : sal.payment_method?.toUpperCase()})
                         </Badge>
                       ) : (
                         <Badge variant="default" className="text-[10px] gap-1">

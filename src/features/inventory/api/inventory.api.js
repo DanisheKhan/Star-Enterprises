@@ -19,7 +19,9 @@ export function setCachedStoreProducts(storeId, products) {
     if (products.length > 0) {
       localStorage.setItem(`${INVENTORY_CACHE_PREFIX}${storeId}`, JSON.stringify(products));
     }
-  } catch {}
+  } catch {
+    // Ignore localStorage write error
+  }
 }
 
 /**

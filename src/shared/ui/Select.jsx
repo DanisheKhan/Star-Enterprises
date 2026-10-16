@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId, Children, isValidElement } from 'react';
+import { useState, useRef, useEffect, useCallback, useId, Children, isValidElement } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/lib/cn';
 import { ChevronDown, Check } from 'lucide-react';
@@ -64,7 +64,7 @@ export function Select({
   );
 
   // Calculate coordinates to float accurately and determine direction (dropup vs dropdown)
-  function updateCoords() {
+  const updateCoords = useCallback(() => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
@@ -88,12 +88,11 @@ export function Select({
       bottom: openAbove ? viewportHeight - rect.top + 6 : undefined,
       maxHeight,
     });
-  }
+  }, [options.length]);
 
   // Listeners for click-outside, scroll, and resize
   useEffect(() => {
     if (!isOpen) {
-      setCoords(null);
       return;
     }
 
@@ -109,9 +108,9 @@ export function Select({
       setIsOpen(false);
     }
 
-    function handleScroll(e) {
+    function handleScroll() {
       // If user scrolls inside the menu itself, do not close or re-evaluate
-      if (menuRef.current && menuRef.current.contains(e.target)) {
+      if (menuRef.current && menuRef.current.contains(document.activeElement)) {
         return;
       }
       if (buttonRef.current) {
@@ -138,7 +137,7 @@ export function Select({
       window.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('resize', handleResize);
     };
-  }, [isOpen, options.length]);
+  }, [isOpen, updateCoords]);
 
   // Keyboard navigation
   function handleKeyDown(e) {
@@ -163,7 +162,7 @@ export function Select({
         return;
       }
       const currentIndex = options.findIndex((opt) => String(opt.value) === String(value));
-      let nextIndex = currentIndex;
+      let nextIndex;
       if (e.key === 'ArrowDown') {
         nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
       } else {
